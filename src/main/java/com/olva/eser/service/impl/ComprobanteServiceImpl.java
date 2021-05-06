@@ -11,6 +11,11 @@ import com.olva.eser.dao.IComprobanteDao;
 import com.olva.eser.entity.Cliente;
 import com.olva.eser.service.IComprobanteService;
 
+
+/**
+ * @author Wilder Chui
+ * @version 1.0
+ */
 @Service
 public class ComprobanteServiceImpl implements IComprobanteService{
 	

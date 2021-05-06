@@ -1,5 +1,6 @@
 package com.olva.eser.job.execute;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -14,13 +15,19 @@ import org.springframework.stereotype.Component;
 
 import com.olva.eser.entity.Cliente;
 import com.olva.eser.entity.ClienteDetalle;
+import com.olva.eser.entity.WsPagoEser;
 import com.olva.eser.job.service.BillingService;
 import com.olva.eser.service.IComprobanteDetalleService;
 import com.olva.eser.service.IComprobanteService;
+import com.olva.eser.service.IWsPagoEserService;
 
+/**
+ * @author Wilder Chui
+ * @version 1.0
+ */
 @Component
 @DisallowConcurrentExecution
-public class BillingJob implements Job{
+public class JobWsPagoEser implements Job{
 
     Logger log = LoggerFactory.getLogger(getClass());
     
@@ -34,36 +41,35 @@ public class BillingJob implements Job{
     
     @Autowired
     private IComprobanteService comprobanteService;
+    
+    @Autowired
+    private IWsPagoEserService eserService;
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
-    	int salto= 0;
-//      bs.callBillingProcess();  
+    	bs.callBillingProcess();  
+    	int num;
     	Cliente cliente = new Cliente();
     	ClienteDetalle clienteDetalle = new ClienteDetalle();
+    	WsPagoEser wsPagoEser = new WsPagoEser();
     	try {
 
-        		Thread.sleep(EXECUTION_TIME);
-//    			cliente = comprobanteService.findById(Long.valueOf(2)); 
-        
-    			clienteDetalle.setApellido("Olva");
-    			clienteDetalle.setCreateAt(new Date());			
-    			comprobanteDetalleService.insertComprobanteDetalle(clienteDetalle);
+//        		Thread.sleep(EXECUTION_TIME);
+    			wsPagoEser = eserService.findById(new BigDecimal("39")); 
+    			System.out.println("DATA --> "+ wsPagoEser.getCurrency());
+//    			clienteDetalle.setApellido("Olva");
+//    			clienteDetalle.setCreateAt(new Date());			
+//    			comprobanteDetalleService.insertComprobanteDetalle(clienteDetalle);
+//    			
+//    			cliente.setApellido("TESTER");
+//    			cliente.setCreateAt(new Date());
+//    			comprobanteService.insertComprobante(cliente);
     			
-    			cliente.setApellido("TESTER");
-    			cliente.setCreateAt(new Date());
-    			comprobanteService.insertComprobante(cliente);
 		} catch (Exception e) {
 			log.error(e.getMessage());
-		}finally {
-        	salto = getNumberOfInvocations();
-            count.incrementAndGet();
-            log.info("Job finalizado .." + salto);            
-        }	  		
+		}  		
     }
     
-    public int getNumberOfInvocations() {
-        return count.get();  
-    }
+    
     
 }

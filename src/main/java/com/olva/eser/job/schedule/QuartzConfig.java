@@ -29,7 +29,10 @@ import org.springframework.scheduling.quartz.SpringBeanJobFactory;
 
 import com.olva.eser.job.config.AutoWiringSpringBeanJobFactory;
 
-
+/**
+ * @author Wilder Chui
+ * @version 1.0
+ */
 @Configuration
 public class QuartzConfig {
     

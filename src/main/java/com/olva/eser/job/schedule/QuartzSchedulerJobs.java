@@ -15,8 +15,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.quartz.CronTriggerFactoryBean;
 import org.springframework.scheduling.quartz.JobDetailFactoryBean;
 
-import com.olva.eser.job.execute.BillingJob;
+import com.olva.eser.job.execute.JobWsPagoEser;
 
+
+/**
+ * @author Wilder Chui
+ * @version 1.0
+ */
 @Configuration
 public class QuartzSchedulerJobs {              
   
@@ -30,7 +35,7 @@ public class QuartzSchedulerJobs {
      */
     @Bean(name = "memberClassBilling")
     public JobDetailFactoryBean jobMemberClassBilling() {
-        return QuartzConfig.createJobDetail(BillingJob.class, "Class billing Job");
+        return QuartzConfig.createJobDetail(JobWsPagoEser.class, "Class billing Job");
     }
 
     @Bean(name = "memberClassBillingTrigger")

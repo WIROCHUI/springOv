@@ -16,8 +16,8 @@ import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
-@Entity
-@Table(name="tb_cliente")
+//@Entity
+//@Table(name="tb_cliente")
 public class Cliente implements Serializable{
 
 	@Id

@@ -11,10 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.olva.eser.entity.Cliente;
-import com.olva.eser.entity.ClienteDetalle;
-import com.olva.eser.service.IComprobanteDetalleService;
-import com.olva.eser.service.IComprobanteService;
 
 @Service
 public class BillingService {
@@ -24,28 +20,12 @@ public class BillingService {
     public static final long EXECUTION_TIME = 5000L;
 
     private AtomicInteger count = new AtomicInteger();
-    
-    public static BillingService billingService;
-    
-    @PostConstruct
-    public void init() {
-    	billingService = this;
-    }
-    
-    @Autowired
-	private IComprobanteService comprobanteService;
-    private IComprobanteDetalleService comprobanteDetalleService;
-     
-    @Transactional
+
     public void callBillingProcess() {
     	int salto= 0;
         log.info("Ingresa al metodo.");
-        Cliente clientes ;
-       // getPets();
         try {
-            Thread.sleep(EXECUTION_TIME);
-//            clientes = comprobanteService.findById(Long.valueOf(2));   
-            
+            Thread.sleep(EXECUTION_TIME);            
             
         } catch (InterruptedException e) {
             log.error("Error en job", e);

@@ -2,6 +2,7 @@ package com.olva.eser.job.execute;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.quartz.DisallowConcurrentExecution;
@@ -13,12 +14,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.olva.eser.entity.Cliente;
-import com.olva.eser.entity.ClienteDetalle;
+import com.olva.eser.dto.LiquidacionClienteDto;
 import com.olva.eser.entity.WsPagoEser;
 import com.olva.eser.job.service.BillingService;
-import com.olva.eser.service.IComprobanteDetalleService;
-import com.olva.eser.service.IComprobanteService;
 import com.olva.eser.service.IWsPagoEserService;
 
 /**
@@ -29,45 +27,71 @@ import com.olva.eser.service.IWsPagoEserService;
 @DisallowConcurrentExecution
 public class JobWsPagoEser implements Job{
 
-    Logger log = LoggerFactory.getLogger(getClass());
+	Logger log = LoggerFactory.getLogger(getClass());
     
     public static final long EXECUTION_TIME = 5000L;
-    private AtomicInteger count = new AtomicInteger();
+    public static final String MSJ_ERROR = "No existe una preventa sin pago asociada al CIP ";
+    public static final String COD_ERROR = "2";
+    
     @Autowired
     private BillingService bs;
     
     @Autowired
-    private IComprobanteDetalleService comprobanteDetalleService;
-    
-    @Autowired
-    private IComprobanteService comprobanteService;
-    
-    @Autowired
     private IWsPagoEserService eserService;
+    
+    private List<WsPagoEser> listaWsPagoEser;
+    
+    private WsPagoEser wsPagoEser;
+    private WsPagoEser updateWsPagoEser;
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
     	bs.callBillingProcess();  
-    	int num;
-    	Cliente cliente = new Cliente();
-    	ClienteDetalle clienteDetalle = new ClienteDetalle();
-    	WsPagoEser wsPagoEser = new WsPagoEser();
+    	int index = 0;
+    	String msjError = "No existe una preventa sin pago asociada al CIP ";
+    	
+    	
+    	LiquidacionClienteDto liquidacionClienteDto = new LiquidacionClienteDto();
+    	
     	try {
+    		listaWsPagoEser = eserService.findByEstadoPendiente();    			
+			while (listaWsPagoEser.size() > index) {
 
-//        		Thread.sleep(EXECUTION_TIME);
-    			wsPagoEser = eserService.findById(new BigDecimal("39")); 
-    			System.out.println("DATA --> "+ wsPagoEser.getCurrency());
-//    			clienteDetalle.setApellido("Olva");
-//    			clienteDetalle.setCreateAt(new Date());			
-//    			comprobanteDetalleService.insertComprobanteDetalle(clienteDetalle);
-//    			
-//    			cliente.setApellido("TESTER");
-//    			cliente.setCreateAt(new Date());
-//    			comprobanteService.insertComprobante(cliente);
+				wsPagoEser = listaWsPagoEser.get(index);
+				if (wsPagoEser == null) {
+					System.out.println("SIN PENDIENTES");
+					return;
+				}
+
+				liquidacionClienteDto = eserService.findByIdLiquidacion(new BigDecimal(wsPagoEser.getTransactionCode()));
+
+				if (liquidacionClienteDto == null) {
+					actualizarPagoEser(wsPagoEser);
+				} else if (liquidacionClienteDto != null) {
+					System.out.println("GENERAR COMPROBANTE!!");
+				}
+
+				index++;
+			}
+    			
     			
 		} catch (Exception e) {
 			log.error(e.getMessage());
 		}  		
+    }
+    
+    
+
+	private void actualizarPagoEser(WsPagoEser wsPagoEser){
+		try {
+	    	System.out.println("ACTUALIZAR");
+			updateWsPagoEser = wsPagoEser;
+			updateWsPagoEser.setMsjError(MSJ_ERROR + wsPagoEser.getTransactionCode());
+			updateWsPagoEser.setEstado(COD_ERROR);
+			eserService.actualizar(updateWsPagoEser);
+		} catch (Exception e) {
+			log.error(e.getMessage());
+		}
     }
     
     

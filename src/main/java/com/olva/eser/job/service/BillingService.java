@@ -11,10 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.olva.eser.entity.Cliente;
-import com.olva.eser.entity.ClienteDetalle;
-import com.olva.eser.service.IComprobanteDetalleService;
-import com.olva.eser.service.IComprobanteService;
 
 @Service
 public class BillingService {

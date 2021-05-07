@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.olva.eser.entity.WsPagoEser;
 
-public interface IWsPagoEserDao extends JpaRepository<WsPagoEser, BigDecimal>{
+public interface IWsPagoEserDao extends JpaRepository<WsPagoEser, Long>{
 
 }

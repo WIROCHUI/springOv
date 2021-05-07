@@ -11,6 +11,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -21,6 +23,9 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "WS_PAGO_ESER")
+@NamedQueries({
+	@NamedQuery(name = "wsPagoEser.findByEstado", query = "SELECT e FROM WsPagoEser e where e.estado = :estado "),
+})
 public class WsPagoEser  implements Serializable{
 	
 	@Id
@@ -68,6 +73,36 @@ public class WsPagoEser  implements Serializable{
 	@Temporal(TemporalType.TIMESTAMP)
 	@Getter	@Setter	private Date modifyDatetime;
 	
+	
+	
+	public WsPagoEser() {
+	}
+
+	public WsPagoEser(Long id, String eventType, String operationNumber, String cip, String currency, BigDecimal amount,
+			String paymentDate, String transactionCode, String dataJson, String msjError, String estado,
+			Date createDatetime, Date modifyDatetime) {
+		this.id = id;
+		this.eventType = eventType;
+		this.operationNumber = operationNumber;
+		this.cip = cip;
+		this.currency = currency;
+		this.amount = amount;
+		this.paymentDate = paymentDate;
+		this.transactionCode = transactionCode;
+		this.dataJson = dataJson;
+		this.msjError = msjError;
+		this.estado = estado;
+		this.createDatetime = createDatetime;
+		this.modifyDatetime = modifyDatetime;
+	}
+
+	public WsPagoEser(Long id, BigDecimal amount, String transactionCode) {
+		this.id = id;
+		this.amount = amount;
+		this.transactionCode = transactionCode;
+	}
+
+
 
 	/**
 	 * 

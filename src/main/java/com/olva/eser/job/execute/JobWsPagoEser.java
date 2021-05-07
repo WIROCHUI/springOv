@@ -15,10 +15,13 @@ import org.springframework.stereotype.Component;
 
 import com.olva.eser.dto.LiquidacionClienteDto;
 import com.olva.eser.entity.ComprobantePago;
+import com.olva.eser.entity.Sede;
 import com.olva.eser.entity.WsPagoEser;
 import com.olva.eser.job.service.BillingService;
+import com.olva.eser.security.DatosGeneralEmpleado;
 import com.olva.eser.security.SesionUsuario;
 import com.olva.eser.service.IComprobantePagoService;
+import com.olva.eser.service.ISedeService;
 import com.olva.eser.service.ISesionUsuarioService;
 import com.olva.eser.service.IWsPagoEserService;
 import com.olva.eser.util.Constante;
@@ -49,11 +52,16 @@ public class JobWsPagoEser implements Job{
     @Autowired
     private ISesionUsuarioService sesionUsuarioService;
     
+    @Autowired
+    private ISedeService sedeService;
+    
     private List<WsPagoEser> listaWsPagoEser;
     
     private WsPagoEser wsPagoEser;
     private WsPagoEser updateWsPagoEser;
     private ComprobantePago comprobante;
+    private DatosGeneralEmpleado datosGeneralEmpleado;
+    private Sede sedeEmpleado;
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
@@ -78,7 +86,7 @@ public class JobWsPagoEser implements Job{
 					actualizarPagoEser(wsPagoEser);
 				} else if (liquidacionClienteDto != null) {
 					System.out.println("GENERAR COMPROBANTE!!");
-					generarComprobantePago();
+//					generarComprobantePago();
 				}
 
 				index++;
@@ -104,9 +112,14 @@ public class JobWsPagoEser implements Job{
 		}
     }
 	
+	@SuppressWarnings("unused")
 	private void generarComprobantePago() {
-//		SesionUsuario sesionUsuario = sesionUsuarioService.findSesionUsuario(Constante.USUARIO_OLVA_COMPRA, Constante.NOMBRE_HOST_MOBILE);
+		SesionUsuario sesionUsuario = sesionUsuarioService.findSesionUsuario(Constante.USUARIO_OLVA_COMPRA, Constante.NOMBRE_HOST_MOBILE);
 		
+		if(null != sesionUsuario) {
+			datosGeneralEmpleado = sesionUsuario.getDatGenEmpleado();
+			sedeEmpleado = sedeService.findByIdSede(datosGeneralEmpleado.getIdSede().toBigInteger().intValueExact());
+		}
 		
 		comprobante.setCreateUser(null);
 		comprobante.setIdTipoAfectacionIgv(null);
@@ -130,7 +143,7 @@ public class JobWsPagoEser implements Job{
 		comprobante.setEfectivo(BigDecimal.ZERO);
 		comprobante.setIdPersJurArea(null);
 		comprobante.setFlgDivEmi(Constante.FLG_DIVERSA_EMISION);
-//		comprobantePagoService.insertaComprobantePago(comprobante);
+		comprobantePagoService.insertaComprobantePago(comprobante);
 		try {
 			
 		} catch (Exception e) {

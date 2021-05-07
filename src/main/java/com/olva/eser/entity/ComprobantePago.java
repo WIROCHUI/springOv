@@ -2,14 +2,11 @@ package com.olva.eser.entity;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.Date;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
-import javax.persistence.ColumnResult;
-import javax.persistence.ConstructorResult;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -48,6 +45,8 @@ public class ComprobantePago implements Serializable {
     @Basic(optional = false)
     @Column(name = "ID")
     @Getter @Setter private Long id;
+	@Column(name = "CREATE_USER")
+	@Getter @Setter private BigDecimal createUser;
 	@JoinColumn(name = "ID_TIPO_COMPROBANTE", referencedColumnName = "ID")
 	@ManyToOne
 	@Getter @Setter private Parametros idTipoComprobante;
@@ -74,8 +73,24 @@ public class ComprobantePago implements Serializable {
     @Getter @Setter private BigDecimal igv;
     @Column(name = "BASE_IMPONIBLE")
     @Getter @Setter private BigDecimal baseImponible;
+    @Column(name = "COLLECT")
+    @Getter @Setter private Character collect;
     @Column(name = "OBSERVACION")    
     @Getter @Setter private String observacion;
+    @Column(name = "ID_OFICINA")    
+    @Getter @Setter private BigDecimal idOficina;
+    @Column(name = "CREATE_DATETIME")
+    @Temporal(TemporalType.TIMESTAMP)
+    @Getter @Setter private Date createDatetime;
+    @Column(name = "CREATE_TIME") 
+    @Temporal(TemporalType.TIMESTAMP)
+    @Getter @Setter private Date createTime;
+    @Column(name = "PC")
+    @Getter @Setter private String pc;
+    @Column(name = "EFECTIVO")    
+    @Getter @Setter private BigDecimal efectivo;
+    @Column(name = "ID_PERS_JUR_AREA")
+    @Getter @Setter private BigDecimal idPersJurArea;
     @Column(name = "FEC_EJEC_JOB")
     @Temporal(TemporalType.TIMESTAMP)
     @Getter @Setter private Date fecEjecJob;
@@ -92,6 +107,9 @@ public class ComprobantePago implements Serializable {
     @Column(name = "FECHA_VENCIMIENTO")
     @Temporal(TemporalType.DATE)
     @Getter @Setter private Date fechaVencimiento;
+    @Column(name = "FLG_INTGR_WIN_TO_CORP")
+    @Getter @Setter private Character flgIntgrWinToCorp = '0';
+    
 
     @JoinColumn(name = "ID_FORMA_PAGO", referencedColumnName = "ID")
     @ManyToOne

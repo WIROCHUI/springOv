@@ -3,7 +3,6 @@ package com.olva.eser.job.execute;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
@@ -15,9 +14,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.olva.eser.dto.LiquidacionClienteDto;
+import com.olva.eser.entity.ComprobantePago;
 import com.olva.eser.entity.WsPagoEser;
 import com.olva.eser.job.service.BillingService;
+import com.olva.eser.security.SesionUsuario;
+import com.olva.eser.service.IComprobantePagoService;
+import com.olva.eser.service.ISesionUsuarioService;
 import com.olva.eser.service.IWsPagoEserService;
+import com.olva.eser.util.Constante;
 
 /**
  * @author Wilder Chui
@@ -39,17 +43,22 @@ public class JobWsPagoEser implements Job{
     @Autowired
     private IWsPagoEserService eserService;
     
+    @Autowired
+    private IComprobantePagoService comprobantePagoService;
+    
+    @Autowired
+    private ISesionUsuarioService sesionUsuarioService;
+    
     private List<WsPagoEser> listaWsPagoEser;
     
     private WsPagoEser wsPagoEser;
     private WsPagoEser updateWsPagoEser;
+    private ComprobantePago comprobante;
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
     	bs.callBillingProcess();  
-    	int index = 0;
-    	String msjError = "No existe una preventa sin pago asociada al CIP ";
-    	
+    	int index = 0;  	
     	
     	LiquidacionClienteDto liquidacionClienteDto = new LiquidacionClienteDto();
     	
@@ -69,6 +78,7 @@ public class JobWsPagoEser implements Job{
 					actualizarPagoEser(wsPagoEser);
 				} else if (liquidacionClienteDto != null) {
 					System.out.println("GENERAR COMPROBANTE!!");
+					generarComprobantePago();
 				}
 
 				index++;
@@ -93,6 +103,40 @@ public class JobWsPagoEser implements Job{
 			log.error(e.getMessage());
 		}
     }
+	
+	private void generarComprobantePago() {
+//		SesionUsuario sesionUsuario = sesionUsuarioService.findSesionUsuario(Constante.USUARIO_OLVA_COMPRA, Constante.NOMBRE_HOST_MOBILE);
+		
+		
+		comprobante.setCreateUser(null);
+		comprobante.setIdTipoAfectacionIgv(null);
+		comprobante.setSerieComprobante(null);
+		comprobante.setNroComprobante(null);
+		comprobante.setIdDocCliente(null);
+		comprobante.setFechaEmision(null);
+		comprobante.setValorVenta(null);
+		comprobante.setValorIgv(null);
+		comprobante.setPrecioVenta(null);
+		comprobante.setIdMoneda(null);
+		comprobante.setIgv(null);
+		comprobante.setBaseImponible(null);
+		comprobante.setCollect(Constante.COLLECT);
+		comprobante.setEstado(null);
+		comprobante.setObservacion(null);
+		comprobante.setIdOficina(null);
+		comprobante.setCreateDatetime(new Date());
+		comprobante.setCreateTime(new Date());
+		comprobante.setPc(null);
+		comprobante.setEfectivo(BigDecimal.ZERO);
+		comprobante.setIdPersJurArea(null);
+		comprobante.setFlgDivEmi(Constante.FLG_DIVERSA_EMISION);
+//		comprobantePagoService.insertaComprobantePago(comprobante);
+		try {
+			
+		} catch (Exception e) {
+			log.error(e.getMessage());
+		}
+	}
     
     
     

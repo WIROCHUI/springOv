@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import com.olva.eser.dto.LiquidacionClienteDto;
+import com.olva.eser.dto.PersonaJuridicaAreaDto;
 import com.olva.eser.entity.WsPagoEser;
 
 
@@ -19,7 +20,13 @@ public interface IWsPagoEserService {
 	
 	public List<WsPagoEser> findByEstadoPendiente();
 	
+	/*
+	 * External
+	 * */
+	
 	public LiquidacionClienteDto findByIdLiquidacion(BigDecimal idLiquidacion);
+	
+	public PersonaJuridicaAreaDto findByCodigoUno(BigDecimal idPersona, BigDecimal idSede);
 	
 	
 }

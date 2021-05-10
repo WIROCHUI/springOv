@@ -35,7 +35,6 @@ import lombok.Setter;
     @NamedQuery(name = "ComprobantePago.findByIdEmisorCompTipoSerieNumeroComprobante", query = "SELECT new com.olva.eser.entity.ComprobantePago(c.id, c.estResCom.id) FROM ComprobantePago c WHERE c.idEmisorComp = :idEmisorComp AND c.idTipoComprobante = :idTipoComprobante AND c.serieComprobante = :serieComprobante and c.nroComprobante = :nroComprobante"),
     @NamedQuery(name = "ComprobantePago.findForGenerateXmlByFechaEmision", query = "SELECT new com.olva.eser.entity.ComprobantePago(c.id, c.serieComprobante, c.nroComprobante, c.fechaEmision, c.igv, c.valorIgv, c.valorVenta, c.precioVenta, c.motivoNota, c.flgDivEmi, c.glosaDivEmi, c.fechaVencimiento, c.idFormaPago.id, tc.id, tc.valor2, c.estado.id, c.idMoneda.id, ta.valor, tn.valor, td.valor, d.numeroDocumento, p.concatNombre) FROM ComprobantePago c INNER JOIN c.idTipoComprobante tc INNER JOIN c.idTipoAfectacionIgv ta LEFT JOIN c.idTipoNota tn INNER JOIN c.idDocCliente d INNER JOIN d.idTipDocumento td INNER JOIN d.idPersona p WHERE c.idEmisorComp = ?1 and c.fechaEmision > ?2 AND c.estadoFacE.id = ?3 order by c.id")
 })
-
 public class ComprobantePago implements Serializable {
 
 	private static final long serialVersionUID = -2110474483883811580L;
@@ -192,7 +191,7 @@ public class ComprobantePago implements Serializable {
         this.observacion = observacion;
     }
 
-	public ComprobantePago(Long id, String serieComprobante, Integer nroComprobante, Character flgDivEmi, String motivoNota, Integer idTipoComprobante, Integer idPersona) {
+	public ComprobantePago(Long id, String serieComprobante, Integer nroComprobante, Character flgDivEmi, String motivoNota, Integer idTipoComprobante, BigDecimal idPersona) {
         this.id = id;
         this.serieComprobante = serieComprobante;
         this.nroComprobante = nroComprobante;

@@ -1,6 +1,7 @@
 package com.olva.eser.entity;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 
 import javax.persistence.Basic;
@@ -30,7 +31,8 @@ import lombok.Setter;
 @Table(name = "DOCUMENTO_IDENTIDAD")
 @NamedQueries({
     @NamedQuery(name = "DocumentoIdentidad.findAll", query = "SELECT d FROM DocumentoIdentidad d"),
-    @NamedQuery(name = "DocumentoIdentidad.findByIdPersona", query = "SELECT new com.olva.eser.entity.DocumentoIdentidad(d.id, d.numeroDocumento, p.idPersona, p.concatNombre) FROM DocumentoIdentidad d JOIN d.idPersona p WHERE p.idPersona = :idPersona")
+    @NamedQuery(name = "DocumentoIdentidad.findByIdPersona", query = "SELECT new com.olva.eser.entity.DocumentoIdentidad(d.id, d.numeroDocumento, p.idPersona, p.concatNombre) FROM DocumentoIdentidad d JOIN d.idPersona p WHERE p.idPersona = :idPersona"),
+    @NamedQuery(name = "DocumentoIdentidad.findByNumero", query = "SELECT d FROM DocumentoIdentidad d where d.estado = '1' and d.numeroDocumento = :numero"),
 }) 
 public class DocumentoIdentidad implements Serializable {
 
@@ -68,7 +70,7 @@ public class DocumentoIdentidad implements Serializable {
     public DocumentoIdentidad() {
     }
 
-    public DocumentoIdentidad(Integer id, String numeroDocumento, Integer idPersona, String concatNombre) {
+    public DocumentoIdentidad(Integer id, String numeroDocumento, BigDecimal idPersona, String concatNombre) {
         this.id = id;
         this.numeroDocumento = numeroDocumento;
         this.idPersona = new Persona(idPersona);

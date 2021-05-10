@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.olva.eser.dao.IWsPagoEserDao;
 import com.olva.eser.dto.LiquidacionClienteDto;
+import com.olva.eser.dto.PersonaJuridicaAreaDto;
 import com.olva.eser.entity.WsPagoEser;
 import com.olva.eser.service.IWsPagoEserService;
 
@@ -69,7 +70,6 @@ public class WsPagoEserServiceImpl implements IWsPagoEserService{
 
 
 	@Override
-	@Transactional
 	public LiquidacionClienteDto findByIdLiquidacion(BigDecimal idLiquidacion) {
 		LiquidacionClienteDto liquidacionClienteDto = new LiquidacionClienteDto();
 		StringBuilder sql = new StringBuilder();
@@ -100,6 +100,31 @@ public class WsPagoEserServiceImpl implements IWsPagoEserService{
 			return null;
 		}	
 
+	}
+
+
+
+	@Override
+	public PersonaJuridicaAreaDto findByCodigoUno(BigDecimal idPersona, BigDecimal idSede) {
+		StringBuilder sql = new StringBuilder();
+		PersonaJuridicaAreaDto perJurArea = new PersonaJuridicaAreaDto();
+		try {
+			sql.append("SELECT ID, ID_PERSONA, CODIGO ");
+			sql.append("FROM PERSONA_JURIDICA_AREAS ");
+			sql.append("WHERE ID_PERSONA = ?1 AND CODIGO = '1' AND ID_SEDE = ?2  ");
+			em.createNativeQuery(sql.toString());
+			Query query = em.createNativeQuery(sql.toString());
+            query.setParameter(1, idPersona);
+            query.setParameter(2, idSede);
+            Object[] result = (Object[]) query.getSingleResult();
+            perJurArea.setId((BigDecimal) result[0]);
+            perJurArea.setIdPersona((BigDecimal) result[1]);
+            perJurArea.setCodigo((String) result[2]);
+            return perJurArea;
+		} catch (Exception e) {
+			return null;
+		}
+		
 	}
 	
 	

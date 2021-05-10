@@ -1,6 +1,7 @@
 package com.olva.eser.entity;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 
 import javax.persistence.Basic;
@@ -44,7 +45,7 @@ public class Persona implements Serializable {
     @Basic(optional = false)
     @NotNull
     @Column(name = "ID_PERSONA")
-    @Getter @Setter private Integer idPersona;
+    @Getter @Setter private BigDecimal idPersona;
     @Column(name = "NOMBRES")
     @Getter @Setter private String nombres;
     @Column(name = "APELLIDO_PATERNO")
@@ -93,11 +94,11 @@ public class Persona implements Serializable {
     public Persona() {
     }
 
-    public Persona(Integer idPersona) {
+    public Persona(BigDecimal idPersona) {
         this.idPersona = idPersona;
     }
     
-    public Persona(Integer idPersona, String concatNombre) {
+    public Persona(BigDecimal idPersona, String concatNombre) {
         this.idPersona = idPersona;
         this.concatNombre = concatNombre;
     }

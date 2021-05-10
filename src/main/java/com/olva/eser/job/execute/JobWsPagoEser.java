@@ -1,6 +1,7 @@
 package com.olva.eser.job.execute;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Date;
 import java.util.List;
 
@@ -14,17 +15,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.olva.eser.dto.LiquidacionClienteDto;
+import com.olva.eser.dto.PersonaJuridicaAreaDto;
 import com.olva.eser.entity.ComprobantePago;
+import com.olva.eser.entity.DocumentoIdentidad;
+import com.olva.eser.entity.Igv;
+import com.olva.eser.entity.Parametros;
 import com.olva.eser.entity.Sede;
+import com.olva.eser.entity.Usuario;
 import com.olva.eser.entity.WsPagoEser;
 import com.olva.eser.job.service.BillingService;
 import com.olva.eser.security.DatosGeneralEmpleado;
 import com.olva.eser.security.SesionUsuario;
 import com.olva.eser.service.IComprobantePagoService;
+import com.olva.eser.service.IDocumentoIdentidadService;
+import com.olva.eser.service.IIgvService;
+import com.olva.eser.service.IParametrosService;
 import com.olva.eser.service.ISedeService;
 import com.olva.eser.service.ISesionUsuarioService;
 import com.olva.eser.service.IWsPagoEserService;
 import com.olva.eser.util.Constante;
+import com.olva.eser.util.GrupoParametrosEnum;
 
 /**
  * @author Wilder Chui
@@ -55,6 +65,15 @@ public class JobWsPagoEser implements Job{
     @Autowired
     private ISedeService sedeService;
     
+    @Autowired
+    private IDocumentoIdentidadService documentoIdentidadService;
+    
+    @Autowired
+    private IIgvService igvService;
+    
+    @Autowired
+    private IParametrosService parametrosService;
+    
     private List<WsPagoEser> listaWsPagoEser;
     
     private WsPagoEser wsPagoEser;
@@ -62,6 +81,16 @@ public class JobWsPagoEser implements Job{
     private ComprobantePago comprobante;
     private DatosGeneralEmpleado datosGeneralEmpleado;
     private Sede sedeEmpleado;
+    private Parametros idMoneda;
+	private Parametros estadoComprobante;
+	private Parametros estadoEnvioContadoFacturado;   
+	private Parametros idTipoComprobante;
+    private Parametros idTipoComprobanteFE;
+    private Parametros idEstadoComprobanteFe;
+    private BigInteger codTipoComprobante = BigInteger.ZERO;
+	private BigInteger codTipoComprobanteFE = BigInteger.ZERO;
+    private Igv igv;
+	
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
@@ -114,7 +143,11 @@ public class JobWsPagoEser implements Job{
 	
 	@SuppressWarnings("unused")
 	private void generarComprobantePago() {
+		Date fecha = new Date();
+		
 		SesionUsuario sesionUsuario = sesionUsuarioService.findSesionUsuario(Constante.USUARIO_OLVA_COMPRA, Constante.NOMBRE_HOST_MOBILE);
+//		DocumentoIdentidad documentoIdentidad = documentoIdentidadService.findByNumero(comprobanteAdapter.getClienteNroDocumento());
+//		PersonaJuridicaAreaDto pja = eserService.findByCodigoUno(documentoIdentidad.getIdPersona().getIdPersona(), Constante.ID_SEDE_LIMA);
 		
 		if(null != sesionUsuario) {
 			datosGeneralEmpleado = sesionUsuario.getDatGenEmpleado();
@@ -137,8 +170,8 @@ public class JobWsPagoEser implements Job{
 		comprobante.setEstado(null);
 		comprobante.setObservacion(null);
 		comprobante.setIdOficina(null);
-		comprobante.setCreateDatetime(new Date());
-		comprobante.setCreateTime(new Date());
+		comprobante.setCreateDatetime(fecha);
+		comprobante.setCreateTime(fecha);
 		comprobante.setPc(null);
 		comprobante.setEfectivo(BigDecimal.ZERO);
 		comprobante.setIdPersJurArea(null);
@@ -150,7 +183,26 @@ public class JobWsPagoEser implements Job{
 			log.error(e.getMessage());
 		}
 	}
+	
+	@SuppressWarnings("unused")
+	private ComprobantePago loadComprobantePagoGenerico(BigDecimal idUsuario, String serie) {
+		ComprobantePago cp = new ComprobantePago();
+		cp.setIdMoneda(idMoneda);
+		cp.setEstado(estadoComprobante);        
+		cp.setSerieComprobante(serie);
+		cp.setPc(Constante.NOMBRE_HOST_MOBILE);
+		cp.setCreateUser(idUsuario);
+		return cp;
+	}
     
+	@SuppressWarnings("unused")
+	private void cargarParametros() {
+		igv = igvService.findByEstado(Constante.ESTADO_ACTIVO);
+		idTipoComprobante = parametrosService.buscaXGrupoYCodigo(GrupoParametrosEnum.TIPO_COMPROBANTE.getValue(),codTipoComprobante);
+		idTipoComprobanteFE = parametrosService.buscaXGrupoYCodigo(GrupoParametrosEnum.TIPO_COMPROBANTE_FE.getValue(),codTipoComprobanteFE);
+		idEstadoComprobanteFe = parametrosService.buscaXGrupoYCodigo(
+			GrupoParametrosEnum.ESTADO_COMPROBANTE_FE.getValue(), Constante.PENDIENTE_GENERAR_XML);
+	}
     
     
 }

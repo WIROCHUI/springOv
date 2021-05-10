@@ -14,5 +14,10 @@ public class Constante {
 	public static final BigDecimal ID_SEDE_LIMA = new BigDecimal("43");
 	public static final BigInteger ESTADO_CONECTIVE_OLVA_WIN = new BigInteger("3");
 	public static final String CODIGO_FORM_CONSULTA_ENVIO = "0309";
+	public static final String TIPO_DOC_DNI = "1";
+	public static final String TIPO_DOC_RUC = "6";
+	public static final String VACIO = "";
+	public static final Character ESTADO_ACTIVO = '1';
+	public static final BigInteger PENDIENTE_GENERAR_XML = new BigInteger("8");
 
 }

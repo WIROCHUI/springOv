@@ -19,5 +19,7 @@ public class Constante {
 	public static final String VACIO = "";
 	public static final Character ESTADO_ACTIVO = '1';
 	public static final BigInteger PENDIENTE_GENERAR_XML = new BigInteger("8");
+	public static final String PREFIJO_COMP_TIPO_FACTURA = "F";
+	
 
 }

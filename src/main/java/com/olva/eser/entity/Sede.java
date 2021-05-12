@@ -29,9 +29,11 @@ import lombok.Setter;
 @Entity
 @Table(name = "SEDE")
 @NamedQueries({
+	 @NamedQuery(name = "Sede.findById", query = "SELECT s FROM Sede s WHERE s.idSede = :idSede"),
     @NamedQuery(name = "Sede.findAllOrderByNombre", query = "SELECT s FROM Sede s WHERE s.estado = '1' ORDER BY s.nombre")
 })
 public class Sede implements Serializable{
+
 
 
     @Id
@@ -39,7 +41,7 @@ public class Sede implements Serializable{
     @SequenceGenerator(name = "SEQ_SEDE", sequenceName = "SEQ_SEDE", allocationSize = 1)
     @Basic(optional = false)
     @Column(name = "ID_SEDE")
-    @Getter @Setter private Integer  idSede;
+    @Getter @Setter private BigDecimal idSede;
     
     @Size(max = 100)
     @Column(name = "NOMBRE")
@@ -49,16 +51,12 @@ public class Sede implements Serializable{
     @ManyToOne(optional = false)
     @Getter @Setter private Persona idPersona;
     
-    @Lob
     @Size(max = 1)
     @Column(name = "FRANQUISIA")
-    @Getter @Setter private String franquisia;
+    @Getter @Setter private Long franquisia;
     
     @Column(name = "ESTADO")
-    private Character estado;
-    
-    @Column(name = "FLG_IMPRESION_ORYX")
-    private Character flgImpresionOryx;
+    @Getter @Setter private Character estado;
     
     @Column(name = "CREATE_DATETIME")
     @Temporal(TemporalType.TIMESTAMP)
@@ -91,7 +89,7 @@ public class Sede implements Serializable{
     @Getter @Setter private BigDecimal montoSeguro;
     
     @Column(name = "CANT_CARGO_BASE")
-    @Getter @Setter private Short cantCargoBase;
+    @Getter @Setter private BigDecimal cantCargoBase;
     
     @JoinColumn(name = "ID_SEDE_PADRE", referencedColumnName = "ID_SEDE")
     @ManyToOne(fetch = FetchType.LAZY)
@@ -124,7 +122,7 @@ public class Sede implements Serializable{
     @Getter @Setter private String rptePreAbonoEmision;
     
     @Column(name = "RPTE_PRE_ABONO_CORRELATIVO")
-    @Getter @Setter private BigInteger rptePreAbonoCorrelativo;
+    @Getter @Setter private String rptePreAbonoCorrelativo;
     
     @Column(name = "ESTADO_CUENTA_EMISION")
     @Getter @Setter private String estadoCuentaEmision;
@@ -161,6 +159,8 @@ public class Sede implements Serializable{
     @JoinColumn(name = "TIPO_AFECTACION", referencedColumnName = "ID")
     @ManyToOne
     @Getter @Setter private Parametros tipoAfectacion;
+    @JoinColumn(name = "ID_PERS_JUR_AREA", referencedColumnName = "ID")
+    @Getter @Setter private BigDecimal idPersJurArea;
     @Column(name = "EST_CTA_SERIE_AUTOMATICO")
     @Getter @Setter private String estCtaSerieAutomatico;
     @Column(name = "EST_CTA_CORRELATIVO_AUTOMATICO")
@@ -187,7 +187,8 @@ public class Sede implements Serializable{
     @Getter @Setter private Integer horaMaxRegistrarEnElDia;    
     @Column(name = "SERIE_FACTURACION_MOVIL")
     @Getter @Setter private String serieFacturacionMovil;
-    
+    @Column(name = "FLG_IMPRESION_ORYX")
+    private Character flgImpresionOryx;
     @Column(name = "TOKENMP",length = 200)
     @Getter @Setter private String tokenMP;
     @Column(name = "IDMP",length = 100)
@@ -201,7 +202,7 @@ public class Sede implements Serializable{
     public Sede() {
     }
 
-	public Sede(Integer idSede) {
+	public Sede(BigDecimal idSede) {
 		this.idSede = idSede;
 	}
 

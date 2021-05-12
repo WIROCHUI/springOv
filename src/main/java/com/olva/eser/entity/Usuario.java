@@ -1,6 +1,7 @@
 package com.olva.eser.entity;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 
 import javax.persistence.Basic;
@@ -16,11 +17,21 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
+import javax.persistence.NamedStoredProcedureQueries;
+import javax.persistence.NamedStoredProcedureQuery;
+import javax.persistence.StoredProcedureParameter;
+import javax.persistence.ParameterMode;
+import javax.persistence.SqlResultSetMapping;
+import javax.persistence.SqlResultSetMappings;
+import javax.persistence.ColumnResult;
+import javax.persistence.ConstructorResult;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
+import com.olva.eser.security.DatosGeneralEmpleado;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -29,6 +40,69 @@ import lombok.Setter;
 @Table(name = "USUARIO")
 @NamedQueries({
     @NamedQuery(name = "Usuario.findByUsuario", query = "SELECT u FROM Usuario u WHERE u.usuario = :usuario ")
+})
+@NamedStoredProcedureQueries({
+    @NamedStoredProcedureQuery(
+            name = "SESION_USUARIO",
+            resultSetMappings = {"OUT_CURSOR"},
+            procedureName = "SP_LST_SESION_USUARIO",
+            parameters = {
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = "pvUsuario", type = String.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = "pvPc", type = String.class),
+                @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, name = "pCursor", type = Void.class)
+            }
+    ),
+})
+@SqlResultSetMappings({
+    @SqlResultSetMapping(
+            name = "OUT_CURSOR",
+            classes = {
+                @ConstructorResult(
+                        targetClass = DatosGeneralEmpleado.class,
+                        columns = {
+                            @ColumnResult(name = "ID_USUARIO", type = BigDecimal.class),
+                            @ColumnResult(name = "USUARIO", type = String.class),
+                            @ColumnResult(name = "ESTADO_USUARIO", type = Character.class),
+                            @ColumnResult(name = "ID_PERSONA", type = BigDecimal.class),
+                            @ColumnResult(name = "NOMBRES", type = String.class),
+                            @ColumnResult(name = "APELLIDO_PATERNO", type = String.class),
+                            @ColumnResult(name = "APELLIDO_MATERNO", type = String.class),
+                            @ColumnResult(name = "ESTADO_PERSONA", type = Character.class),
+                            @ColumnResult(name = "ID_SUBSEDE_AREA", type = BigDecimal.class),
+                            @ColumnResult(name = "ESTADO_SUBSEDE_AREA", type = Character.class),
+                            @ColumnResult(name = "ID_AREA", type = BigDecimal.class),
+                            @ColumnResult(name = "NOMBRE_AREA", type = String.class),
+                            @ColumnResult(name = "ESTADO_AREA", type = Character.class),
+                            @ColumnResult(name = "ID_SUBSEDE", type = BigDecimal.class),
+                            @ColumnResult(name = "NOMBRE_SUBSEDE", type = String.class),
+                            @ColumnResult(name = "ESTADO_SUBSEDE", type = Character.class),
+                            @ColumnResult(name = "ID_SEDE", type = BigDecimal.class),
+                            @ColumnResult(name = "NOMBRE_SEDE", type = String.class),
+                            @ColumnResult(name = "ESTADO_SEDE", type = Character.class),
+                            @ColumnResult(name = "ID_OFICINA", type = BigDecimal.class),
+                            @ColumnResult(name = "NOMBRE_OFICINA", type = String.class),
+                            @ColumnResult(name = "ESTADO_OFICINA", type = Character.class),
+                            @ColumnResult(name = "ESTADO_EMPLEADO", type = Character.class),
+                            @ColumnResult(name = "ID_EMPLEADO", type = BigDecimal.class),
+                            @ColumnResult(name = "ID_PLANTILLA", type = BigDecimal.class),
+                            @ColumnResult(name = "ESTADO_PLANTILLA", type = Character.class),
+                            @ColumnResult(name = "ID_ASIG_PLANTILLA_USU", type = BigDecimal.class),
+                            @ColumnResult(name = "ESTADO_ASIG_PLANTILLA_USU", type = Character.class),
+                            @ColumnResult(name = "idPaquete", type = BigDecimal.class),
+                            @ColumnResult(name = "codDigitador", type = String.class),
+                            @ColumnResult(name = "codOficina", type = String.class),
+                            @ColumnResult(name = "TIPO_ACCESO", type = BigDecimal.class),
+                            @ColumnResult(name = "ID_EMISOR", type = BigDecimal.class),
+                            @ColumnResult(name = "COD_UBIGEO", type = String.class),
+                            @ColumnResult(name = "COD_SEDE", type = String.class),
+                            @ColumnResult(name = "ID_PAQUETE_ZONA", type = BigDecimal.class),
+                            @ColumnResult(name = "TIPO_AFECTACION", type = BigDecimal.class),
+                            @ColumnResult(name = "TOKENMP", type = String.class),
+                            @ColumnResult(name = "IDMP", type = String.class),
+                            @ColumnResult(name = "URLMP", type = String.class),
+                            @ColumnResult(name = "TIMEMP", type = String.class),
+                        })
+            })
 })
 public class Usuario implements Serializable {
 

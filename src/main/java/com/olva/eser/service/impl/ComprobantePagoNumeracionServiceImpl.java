@@ -11,6 +11,8 @@ import javax.persistence.PersistenceContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.olva.eser.entity.ComprobantePagoNumeracion;
 import com.olva.eser.service.IComprobantePagoNumeracionService;
@@ -20,6 +22,7 @@ import com.olva.eser.service.IComprobantePagoNumeracionService;
  * Date 10 may. 2021
  * Version 1.0
  */
+@Service
 public class ComprobantePagoNumeracionServiceImpl implements IComprobantePagoNumeracionService{
 	
 	Logger log = LoggerFactory.getLogger(getClass());
@@ -28,6 +31,7 @@ public class ComprobantePagoNumeracionServiceImpl implements IComprobantePagoNum
     private EntityManager em;
 
 	@Override
+	@Transactional(readOnly = true)
 	public ComprobantePagoNumeracion findByOficinaSerie(BigDecimal idOficina, String serie) {
 		try {
             return (ComprobantePagoNumeracion) em.createNamedQuery("ComprobantePagoNumeracion.findByOficinaSerie")

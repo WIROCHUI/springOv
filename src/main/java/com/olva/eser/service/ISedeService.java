@@ -1,9 +1,11 @@
 package com.olva.eser.service;
 
+import java.math.BigDecimal;
+
 import com.olva.eser.entity.Sede;
 
 public interface ISedeService {
 	
-	public Sede findByIdSede(Integer idSede);
+	public Sede findByIdSede(BigDecimal idSede);
 
 }

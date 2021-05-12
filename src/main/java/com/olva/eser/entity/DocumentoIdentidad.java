@@ -25,7 +25,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
+ * 
  * @author Wilder Chui
+ * Date 11 may. 2021
+ * Version 1.0
  */
 @Entity
 @Table(name = "DOCUMENTO_IDENTIDAD")

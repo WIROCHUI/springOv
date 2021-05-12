@@ -1,6 +1,9 @@
 package com.olva.eser.service.impl;
 
+import java.math.BigDecimal;
+
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 
 import org.slf4j.Logger;
@@ -10,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.olva.eser.dao.ISedeDao;
+import com.olva.eser.entity.Parametros;
 import com.olva.eser.entity.Sede;
 import com.olva.eser.service.ISedeService;
 
@@ -26,8 +30,14 @@ public class SedeServiceImpl implements ISedeService{
 
 	@Override
 	@Transactional(readOnly = true)
-	public Sede findByIdSede(Integer idSede) {
-		return sedeDao.findById(idSede).orElse(null);
+	public Sede findByIdSede(BigDecimal idSede) {
+		try {
+			return (Sede) em.createNamedQuery("Sede.findById").setParameter("idSede", idSede)
+					.getSingleResult();
+		} catch (NoResultException e) {
+			log.error(e.getMessage(), e);
+			return null;
+		}
 	}
 
 }

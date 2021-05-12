@@ -33,14 +33,18 @@ public class Oficina implements Serializable{
     @Basic(optional = false)
     @NotNull
     @Column(name = "ID")
+	@Getter @Setter 
     private BigDecimal id;
     @Basic(optional = false)
     @NotNull
     @Column(name = "NOMBRE")
+    @Getter @Setter 
     private String nombre;
     @Column(name = "CODIGO")
+    @Getter @Setter 
     private String codigo;
     @Column(name = "DESCRIPCION")
+    @Getter @Setter 
     private String descripcion;
     @Column(name = "CREATE_DATETIME")
     @Temporal(TemporalType.TIMESTAMP)

@@ -1,6 +1,7 @@
 package com.olva.eser.entity;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.util.Date;
 
 import javax.persistence.Basic;
@@ -43,9 +44,9 @@ public class Parametros implements Serializable {
     @Column(name = "ID")
     @Getter @Setter private Integer id;
     @Column(name = "GRUPO")
-    @Getter @Setter private Integer grupo;
+    @Getter @Setter private BigInteger grupo;
     @Column(name = "CODIGO")
-    @Getter @Setter private Integer codigo;
+    @Getter @Setter private BigInteger codigo;
     @Column(name = "DESCRIPCION")
     @Getter @Setter private String descripcion;
     @Basic(optional = false)

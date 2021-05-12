@@ -77,7 +77,7 @@ public class ComprobantePago implements Serializable {
     @Column(name = "OBSERVACION")    
     @Getter @Setter private String observacion;
     @Column(name = "ID_OFICINA")    
-    @Getter @Setter private BigDecimal idOficina;
+    @Getter @Setter private Oficina idOficina;
     @Column(name = "CREATE_DATETIME")
     @Temporal(TemporalType.TIMESTAMP)
     @Getter @Setter private Date createDatetime;
@@ -99,6 +99,9 @@ public class ComprobantePago implements Serializable {
     @Getter @Setter private String glosaDivEmi;
     @Column(name = "MOTIVO_NOTA")
     @Getter @Setter private String motivoNota;
+    @JoinColumn(name = "ID_TIPO_COMPROBANTE_FE", referencedColumnName = "ID")
+    @ManyToOne
+    @Getter @Setter private Parametros idTipoComprobanteFE;
     @Column(name = "DIGEST_VALUE")
     @Getter @Setter private String digestValue;
     @Column(name = "MAIL_SENT")

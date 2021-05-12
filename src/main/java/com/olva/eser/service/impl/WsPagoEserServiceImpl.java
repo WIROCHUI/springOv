@@ -45,6 +45,7 @@ public class WsPagoEserServiceImpl implements IWsPagoEserService{
 	
 	
 	@Override
+	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
 	public List<WsPagoEser> findByEstadoPendiente() {
 		String estadoPendiente = "0";
@@ -70,6 +71,7 @@ public class WsPagoEserServiceImpl implements IWsPagoEserService{
 
 
 	@Override
+	@Transactional(readOnly = true)
 	public LiquidacionClienteDto findByIdLiquidacion(BigDecimal idLiquidacion) {
 		LiquidacionClienteDto liquidacionClienteDto = new LiquidacionClienteDto();
 		StringBuilder sql = new StringBuilder();
@@ -105,6 +107,7 @@ public class WsPagoEserServiceImpl implements IWsPagoEserService{
 
 
 	@Override
+	@Transactional(readOnly = true)
 	public PersonaJuridicaAreaDto findByCodigoUno(BigDecimal idPersona, BigDecimal idSede) {
 		StringBuilder sql = new StringBuilder();
 		PersonaJuridicaAreaDto perJurArea = new PersonaJuridicaAreaDto();

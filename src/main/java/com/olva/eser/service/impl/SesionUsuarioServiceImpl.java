@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.persistence.ParameterMode;
 import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
 
@@ -33,19 +34,21 @@ public class SesionUsuarioServiceImpl implements ISesionUsuarioService{
 	@Autowired
 	private IConstanteSistemaService constanteSistemaFacadeLocal;
 	
+	@SuppressWarnings("unchecked")
 	@Override
-	@Transactional(readOnly = true)
+	@Transactional
 	public SesionUsuario findSesionUsuario(String usuario, String pc) {
 
 		try {
 			SesionUsuario sesionUsuario;
+			
 			StoredProcedureQuery query = em.createNamedStoredProcedureQuery("SESION_USUARIO");
 			query.setParameter("pvUsuario", usuario);
 			query.setParameter("pvPc", pc);
 			query.execute();
-
-			@SuppressWarnings("unchecked")
-			List<DatosGeneralEmpleado> lstUsuarioEmpleado = (List<DatosGeneralEmpleado>) query.getOutputParameterValue("pCursor");
+			
+			List<DatosGeneralEmpleado> lstUsuarioEmpleado = query.getResultList();
+						
 			if (!lstUsuarioEmpleado.isEmpty() && lstUsuarioEmpleado.size() == 1) {
 				sesionUsuario = new SesionUsuario();
 				sesionUsuario.setDatGenEmpleado(lstUsuarioEmpleado.get(0));

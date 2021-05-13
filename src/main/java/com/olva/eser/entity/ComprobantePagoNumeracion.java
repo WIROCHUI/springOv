@@ -127,7 +127,13 @@ public class ComprobantePagoNumeracion implements Serializable{
         this.estado = estado;
     }
 	
-	
+    public Long getNroCorrelativo() {
+        return nroCorrelativo;
+    }
+
+    public void setNroCorrelativo(Long nroCorrelativo) {
+        this.nroCorrelativo = nroCorrelativo;
+    }
 	
 	
 

@@ -15,4 +15,5 @@ public class LiquidacionClienteDto {
 	@Getter @Setter private String numeroFactura;
 	@Getter @Setter private String codClienteDniRuc;
 	@Getter @Setter private String cip;
+	@Getter @Setter private String tipoDocumentocliente;
 }

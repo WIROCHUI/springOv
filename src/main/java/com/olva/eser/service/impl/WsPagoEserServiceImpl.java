@@ -79,7 +79,7 @@ public class WsPagoEserServiceImpl implements IWsPagoEserService{
 			
 			sql.append("SELECT ID_LIQUIDACION, DIRECCIONES, ");
 			sql.append("TOTAL, PESO_TOTAL, SERIE_FACTURA, NUMERO_FACTURA, ");
-			sql.append("COD_CLIENTE_RUC_DNI, CIP ");
+			sql.append("COD_CLIENTE_RUC_DNI, CIP,TIPO_DOCUMENTO_CLIENTE ");
 			sql.append("FROM OLVADESA.LIQUIDACION_CLIENTE ");
 			sql.append("WHERE ID_LIQUIDACION = ?1 ");
 			
@@ -96,7 +96,7 @@ public class WsPagoEserServiceImpl implements IWsPagoEserService{
             liquidacionClienteDto.setNumeroFactura((String) result[5]);
             liquidacionClienteDto.setCodClienteDniRuc((String) result[6]);
             liquidacionClienteDto.setCip((String) result[7]);
-
+            liquidacionClienteDto.setTipoDocumentocliente(String.valueOf((char) result[8]));
             return liquidacionClienteDto;
 		} catch (Exception e) {
 			return null;
@@ -122,7 +122,7 @@ public class WsPagoEserServiceImpl implements IWsPagoEserService{
             Object[] result = (Object[]) query.getSingleResult();
             perJurArea.setId((BigDecimal) result[0]);
             perJurArea.setIdPersona((BigDecimal) result[1]);
-            perJurArea.setCodigo((String) result[2]);
+            perJurArea.setCodigo(String.valueOf((char) result[2]));
             return perJurArea;
 		} catch (Exception e) {
 			return null;

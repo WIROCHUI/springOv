@@ -16,6 +16,10 @@ import org.springframework.stereotype.Component;
 
 import com.olva.eser.dto.LiquidacionClienteDto;
 import com.olva.eser.dto.PersonaJuridicaAreaDto;
+import com.olva.eser.emun.EstadoItemResumenComprobanteEnum;
+import com.olva.eser.emun.GrupoParametrosEnum;
+import com.olva.eser.emun.TipoComprobanteEnum;
+import com.olva.eser.emun.TipoComprobanteFEEnum;
 import com.olva.eser.entity.ComprobantePago;
 import com.olva.eser.entity.ComprobantePagoNumeracion;
 import com.olva.eser.entity.DocumentoIdentidad;
@@ -38,7 +42,6 @@ import com.olva.eser.service.ISedeService;
 import com.olva.eser.service.ISesionUsuarioService;
 import com.olva.eser.service.IWsPagoEserService;
 import com.olva.eser.util.Constante;
-import com.olva.eser.util.GrupoParametrosEnum;
 
 /**
  * @author Wilder Chui
@@ -88,7 +91,6 @@ public class JobWsPagoEser implements Job{
     
     private WsPagoEser wsPagoEser;
     private WsPagoEser updateWsPagoEser;
-    private ComprobantePago comprobante;
     private DatosGeneralEmpleado datosGeneralEmpleado;
     private Sede sedeEmpleado;
     private Parametros idMoneda;
@@ -97,6 +99,9 @@ public class JobWsPagoEser implements Job{
 	private Parametros idTipoComprobante;
     private Parametros idTipoComprobanteFE;
     private Parametros idEstadoComprobanteFe;
+    private Parametros getOficinaTipoPrincipal;
+    private Parametros getTipoServicioCourierNacional;
+    private Parametros getTipoMoneda;
     private Igv igv;
     private ComprobantePagoNumeracion comprobantePagoNumeracion;
     private Oficina oficina;
@@ -105,13 +110,14 @@ public class JobWsPagoEser implements Job{
 	private BigInteger codTipoComprobanteFE = BigInteger.ZERO;
 	private Parametros estadoResumenComp = null;   
 	
-
+	private LiquidacionClienteDto liquidacionClienteDto;
+	
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
     	bs.callBillingProcess();  
     	int index = 0;  	
     	
-    	LiquidacionClienteDto liquidacionClienteDto = new LiquidacionClienteDto();
+    	
     	
     	try {
     		listaWsPagoEser = eserService.findByEstadoPendiente();    			
@@ -158,58 +164,91 @@ public class JobWsPagoEser implements Job{
 	private void generarComprobantePago() {
 		Date fecha = new Date();
 		ComprobantePago comprobantePagoGenerico = new ComprobantePago();
-		
-		SesionUsuario sesionUsuario = sesionUsuarioService.findSesionUsuario(Constante.USUARIO_OLVA_COMPRA, Constante.NOMBRE_HOST_MOBILE);
-//		DocumentoIdentidad documentoIdentidad = documentoIdentidadService.findByNumero(comprobanteAdapter.getClienteNroDocumento());
-//		PersonaJuridicaAreaDto pja = eserService.findByCodigoUno(documentoIdentidad.getIdPersona().getIdPersona(), Constante.ID_SEDE_LIMA);
-		
-	
-		
-		cargarParametros();
-		
-		if(null != sesionUsuario) {
-			datosGeneralEmpleado = sesionUsuario.getDatGenEmpleado();
-			sedeEmpleado = sedeService.findByIdSede(datosGeneralEmpleado.getIdSede());
-			datosGeneralEmpleado = sesionUsuario.getDatGenEmpleado();
-			comprobantePagoGenerico = loadComprobantePagoGenerico(
-					datosGeneralEmpleado.getIdUsuario(), sedeEmpleado.getSerieFacturacionMovil());
-//			cargarValoresIniciales(sedeEmpleado, comprobanteAdapter.getIdMoneda());
-			oficina = iOficinaService.findByTipoOficinaSede(new Parametros(1450), sedeEmpleado);
-			comprobantePagoNumeracion = comprobantePagoNumeracionService.findByOficinaSerie(
-					oficina.getId(), Constante.PREFIJO_COMP_TIPO_FACTURA+sedeEmpleado.getSerieFacturacionMovil());
-		}
-		comprobante.setSerieComprobante(comprobantePagoGenerico.getSerieComprobante());
-		comprobante.setFechaEmision(fecha);	
-		comprobante.setCreateUser(comprobantePagoGenerico.getCreateUser());
-		comprobante.setCreateDatetime(fecha);        
-		comprobante.setCreateTime(fecha);  
-//		comprobante.setIdDocCliente(documentoIdentidad);
-		comprobante.setIdTipoComprobante(idTipoComprobante);
-//		comprobante.setIdPersJurArea(pja.getId().toBigInteger());
-		comprobante.setCollect(Constante.COLLECT);   
-		comprobante.setIdMoneda(comprobantePagoGenerico.getIdMoneda());
-		comprobante.setFlgFacturaElectronica(Constante.FLG_FACTURA_ELECTRONICA);
-		comprobante.setIdTipoComprobanteFE(idTipoComprobanteFE);
-		comprobante.setEfectivo(BigDecimal.ZERO);
-		comprobante.setEstado(comprobantePagoGenerico.getEstado());
-		comprobante.setPc(comprobantePagoGenerico.getPc());
-		comprobante.setIdOficina(oficina);
-		comprobante.setEstResCom(estadoResumenComp);     
-//		comprobante.setIdTipoServicio(constanteSingletonLocal.getTipoServicioCourierNacional());    
-//		comprobante.setIdFormaPago(new Parametros(comprobanteAdapter.getIdFormaPago()));
-		comprobante.setIgv(igv.getPorcentajeIgv());
-		comprobante.setFlgDivEmi(Constante.FLG_DIVERSA_EMISION);
-		comprobante.setEstadoFacE(idEstadoComprobanteFe);
-		
-//		comprobantePagoService.insertaComprobantePago(comprobante);
+		SesionUsuario sesionUsuario = sesionUsuarioService.findSesionUsuario(Constante.USUARIO_OLVA_COMPRA,
+				Constante.NOMBRE_HOST_MOBILE);
+		cargaParametrosLiquidacion();
+
 		try {
-			
+
+			if (null == liquidacionClienteDto.getTipoDocumentocliente()) {
+				log.warn(Constante.NO_SE_CONFIRMO_EL_TIPO_DOC_VACIO);
+			} else if (null == getTipoMoneda) {
+				log.warn(Constante.NO_SE_CONFIRMO_MONEDA_VACIO);
+			}
+//		else if(null == comprobanteAdapter.getIdFormaPago()) {
+//			mensajeRespuesta = Constante.NO_SE_CONFIRMO_FORMA_PAGO_VACIO;
+//		}
+			else if (null != sesionUsuario) {
+				datosGeneralEmpleado = sesionUsuario.getDatGenEmpleado();
+				sedeEmpleado = sedeService.findByIdSede(datosGeneralEmpleado.getIdSede());
+
+				if (null != sedeEmpleado) {
+					oficina = iOficinaService.findByTipoOficinaSede(getOficinaTipoPrincipal, sedeEmpleado);
+
+					if (null != oficina) {
+
+						switch (liquidacionClienteDto.getTipoDocumentocliente()) {
+						case Constante.TIPO_DOC_RUC:
+							codTipoComprobante = TipoComprobanteEnum.FACTURA.getValue();
+							codTipoComprobanteFE = TipoComprobanteFEEnum.FACTURA.getValue();
+							estadoResumenComp = parametrosService.buscaXGrupoYCodigo(
+									GrupoParametrosEnum.ESTADO_ITEM_RESUMEN_COMPROBANTE.getValue(),
+									EstadoItemResumenComprobanteEnum.ADICIONAR.getValue());
+							break;
+						case Constante.TIPO_DOC_DNI:
+							codTipoComprobante = TipoComprobanteEnum.BOLETA.getValue();
+							codTipoComprobanteFE = TipoComprobanteFEEnum.BOLETA.getValue();
+							break;
+						default:
+							log.warn(Constante.TIPO_DOCUENTO_NULO);
+							break;
+						}
+						comprobantePagoNumeracion = comprobantePagoNumeracionService.findByOficinaSerie(oficina.getId(),
+								Constante.PREFIJO_COMP_TIPO_FACTURA + sedeEmpleado.getSerieFacturacionMovil());
+//						cargarValoresIniciales(sedeEmpleado,getTipoMoneda);
+						cargarParametros();
+						comprobantePagoGenerico = loadComprobantePagoGenerico(datosGeneralEmpleado.getIdUsuario(),
+								sedeEmpleado.getSerieFacturacionMovil());
+						DocumentoIdentidad documentoIdentidad = documentoIdentidadService
+								.findById(Integer.parseInt(liquidacionClienteDto.getCodClienteDniRuc()));
+
+						PersonaJuridicaAreaDto pja = eserService.findByCodigoUno(
+								documentoIdentidad.getIdPersona().getIdPersona(), Constante.ID_SEDE_LIMA);
+						datosGeneralEmpleado = sesionUsuario.getDatGenEmpleado();
+						ComprobantePago comprobante = new ComprobantePago();
+						comprobante.setSerieComprobante(comprobantePagoGenerico.getSerieComprobante());
+						comprobante.setFechaEmision(fecha);
+						comprobante.setCreateUser(comprobantePagoGenerico.getCreateUser());
+						comprobante.setCreateDatetime(fecha);
+						comprobante.setCreateTime(fecha);
+						comprobante.setIdDocCliente(documentoIdentidad);
+						comprobante.setIdTipoComprobante(idTipoComprobante);
+						comprobante.setIdPersJurArea(pja.getId());
+						comprobante.setCollect(Constante.COLLECT);
+						comprobante.setIdMoneda(comprobantePagoGenerico.getIdMoneda());
+						comprobante.setFlgFacturaElectronica(Constante.FLG_FACTURA_ELECTRONICA);
+						comprobante.setIdTipoComprobanteFE(idTipoComprobanteFE);
+						comprobante.setEfectivo(BigDecimal.ZERO);
+						comprobante.setEstado(comprobantePagoGenerico.getEstado());
+						comprobante.setPc(comprobantePagoGenerico.getPc());
+						comprobante.setIdOficina(oficina);
+						comprobante.setEstResCom(estadoResumenComp);
+						comprobante.setIdTipoServicio(getTipoServicioCourierNacional);
+//						comprobante.setIdFormaPago(new Parametros(comprobanteAdapter.getIdFormaPago()));
+						comprobante.setIgv(igv.getPorcentajeIgv());
+						comprobante.setFlgDivEmi(Constante.FLG_DIVERSA_EMISION);
+						comprobante.setEstadoFacE(idEstadoComprobanteFe);
+						comprobantePagoService.insertaComprobantePago(comprobante, sesionUsuario);						
+					}
+				}
+
+			}
+
 		} catch (Exception e) {
 			log.error(e.getMessage());
 		}
 	}
-	
-	@SuppressWarnings("unused")
+
 	private ComprobantePago loadComprobantePagoGenerico(BigDecimal idUsuario, String serie) {
 		ComprobantePago cp = new ComprobantePago();
 		cp.setIdMoneda(idMoneda);
@@ -222,11 +261,21 @@ public class JobWsPagoEser implements Job{
     
 	private void cargarParametros() {
 		igv = igvService.findByEstado(Constante.ESTADO_ACTIVO);
-//		idTipoComprobante = parametrosService.buscaXGrupoYCodigo(GrupoParametrosEnum.TIPO_COMPROBANTE.getValue(),codTipoComprobante);
-//		idTipoComprobanteFE = parametrosService.buscaXGrupoYCodigo(GrupoParametrosEnum.TIPO_COMPROBANTE_FE.getValue(),codTipoComprobanteFE);
+		idTipoComprobante = parametrosService.buscaXGrupoYCodigo(GrupoParametrosEnum.TIPO_COMPROBANTE.getValue(),codTipoComprobante);
+		idTipoComprobanteFE = parametrosService.buscaXGrupoYCodigo(GrupoParametrosEnum.TIPO_COMPROBANTE_FE.getValue(),codTipoComprobanteFE);
 		idEstadoComprobanteFe = parametrosService.buscaXGrupoYCodigo(
 			GrupoParametrosEnum.ESTADO_COMPROBANTE_FE.getValue(), Constante.PENDIENTE_GENERAR_XML);
 	}
     
+	private void cargaParametrosLiquidacion(){
+		getOficinaTipoPrincipal = parametrosService.buscaXGrupoYCodigo(
+				GrupoParametrosEnum.ESTADO_TIPO_OFICINA.getValue(), Constante.OFICINA_PRINCIPAL);
+		getTipoServicioCourierNacional = parametrosService.buscaXGrupoYCodigo(
+				GrupoParametrosEnum.TIPO_FACTURACION.getValue(), Constante.COURIER_NACIONAL);
+		getTipoMoneda = parametrosService.buscaXGrupoYCodigo(Constante.GRUPO_MONEDA,Constante.CODIGO_DOLAR);
+	}
+	
+	
+	
     
 }

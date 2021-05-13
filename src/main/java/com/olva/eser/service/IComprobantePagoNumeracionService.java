@@ -5,6 +5,7 @@ package com.olva.eser.service;
 
 import java.math.BigDecimal;
 
+import com.olva.eser.entity.ComprobantePago;
 import com.olva.eser.entity.ComprobantePagoNumeracion;
 
 /**
@@ -15,4 +16,9 @@ import com.olva.eser.entity.ComprobantePagoNumeracion;
 public interface IComprobantePagoNumeracionService {
 	
 	public ComprobantePagoNumeracion findByOficinaSerie(BigDecimal idOficina, String serie);
+	
+	public ComprobantePagoNumeracion findByNumeroComprobante(String serie, String serieFacE, ComprobantePago comprobante);
+	
+	public void updCorrelativoCompPagoNumeracion(ComprobantePagoNumeracion compPagNumeracion, long nroCorrelativo);
+	
 }

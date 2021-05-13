@@ -20,6 +20,23 @@ public class Constante {
 	public static final Character ESTADO_ACTIVO = '1';
 	public static final BigInteger PENDIENTE_GENERAR_XML = new BigInteger("8");
 	public static final String PREFIJO_COMP_TIPO_FACTURA = "F";
+	public static final BigInteger GRUPO_MONEDA = new BigInteger("7");
+	public static final BigInteger CODIGO_DOLAR = new BigInteger("2");
+	public static final String SEPARADOR_GUION = "\\-";
+	public static final String GUION = " - ";
+	public static final String COD_ERR_COMPROBANTE = "0";
 	
+	public static final BigInteger OFICINA_PRINCIPAL = new BigInteger("1");
+	public static final BigInteger COURIER_NACIONAL = new BigInteger("1");
+	
+	
+	//MENSAJES
+	public static final String NO_SE_CONFIRMO_EL_TIPO_DOC_VACIO = "5#El tipo de documento del cliente no ha sido enviado en el trama, por favor revisar";
+	public static final String NO_SE_CONFIRMO_MONEDA_VACIO = "6#La moneda no ha sido enviado en el trama, por favor revisar";
+	public static final String NO_SE_CONFIRMO_FORMA_PAGO_VACIO = "7#La forma de pago no ha sido enviado en el trama, por favor revisar";
+	public static final String TIPO_DOCUENTO_NULO = "NO SE ENCONTRO TIPO DE DOCUMENTO";
+	public static final String COMPROBANTE_ANTERIOR_NO_EXISTE = "El comprobante de pago anterior no esta registrado, avisar a sistemas => ";
+	public static final String SERIE_ANTERIOR_NO_EXISTE = "No se encontro el registro del número del correlativo de la serie ";
+	public static final String TICKETERA_ANTERIOR_NO_EXISTE = "No se encontro el registro del número del correlativo de la ticketera, avisar a sistemas (SP RETURN NULL)";
 
 }

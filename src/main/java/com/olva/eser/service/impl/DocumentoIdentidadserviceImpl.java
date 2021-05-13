@@ -5,9 +5,11 @@ import javax.persistence.PersistenceContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.olva.eser.dao.IDocumentoIdentidadDao;
 import com.olva.eser.entity.DocumentoIdentidad;
 import com.olva.eser.service.IDocumentoIdentidadService;
 
@@ -15,6 +17,9 @@ import com.olva.eser.service.IDocumentoIdentidadService;
 public class DocumentoIdentidadserviceImpl implements IDocumentoIdentidadService{
 	
 	Logger log = LoggerFactory.getLogger(getClass());
+	
+	@Autowired
+	private IDocumentoIdentidadDao docIdeDao;
 	
 	@PersistenceContext
     private EntityManager em;
@@ -31,6 +36,12 @@ public class DocumentoIdentidadserviceImpl implements IDocumentoIdentidadService
             log.error(e.getMessage(), e);
             return new DocumentoIdentidad();
         }
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public DocumentoIdentidad findById(Integer id) {
+		return docIdeDao.findById(id).orElse(null);
 	}
 
 }

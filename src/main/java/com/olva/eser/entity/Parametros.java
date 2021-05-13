@@ -1,6 +1,7 @@
 package com.olva.eser.entity;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Date;
 
@@ -76,9 +77,7 @@ public class Parametros implements Serializable {
     public Parametros() {
     }
 
-    public Parametros(Integer id) {
-        this.id = id;
-    }
+
     
     public Parametros(Integer id, String valor) {
         this.id = id;
@@ -108,4 +107,11 @@ public class Parametros implements Serializable {
     public String toString() {
         return "com.olva.job.entity.Parametros[ id=" + id + " ]";
     }
+
+
+
+	public Parametros(@NotNull Integer id) {
+		super();
+		this.id = id;
+	}
 }

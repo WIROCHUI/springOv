@@ -25,7 +25,11 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "OFICINA")
+@NamedQueries({
+	@NamedQuery(name = "Oficina.findByTipoOficinaSede", query = "SELECT o FROM Oficina o WHERE o.idSubsede.idSede = :idSede AND o.tipoOficina = :tipoOficina and o.estado = '1'")
+})
 public class Oficina implements Serializable{
+	
 
 	@Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_OFICINA")
@@ -48,23 +52,31 @@ public class Oficina implements Serializable{
     private String descripcion;
     @Column(name = "CREATE_DATETIME")
     @Temporal(TemporalType.TIMESTAMP)
+    @Getter @Setter 
     private Date createDatetime;
     @Column(name = "MODIFY_DATETIME")
     @Temporal(TemporalType.TIMESTAMP)
     private Date modifyDatetime;
     @JoinColumn(name = "CREATE_USER", referencedColumnName = "ID_USUARIO")
     @ManyToOne
+    @Getter @Setter 
     private Usuario createUser;
     @JoinColumn(name = "MODIFY_USER", referencedColumnName = "ID_USUARIO")
     @ManyToOne
     private Usuario modifyUser;
 
-   
+    @JoinColumn(name = "ID_SUBSEDE", referencedColumnName = "ID")
+    @ManyToOne(optional = false)
+    @Getter @Setter 
+    private Subsede idSubsede;
+    
     @JoinColumn(name = "ID_PERSONA", referencedColumnName = "ID_PERSONA")
     @ManyToOne
+    @Getter @Setter 
     private Persona idPersona;
     @JoinColumn(name = "TIPO_OFICINA", referencedColumnName = "ID")
     @ManyToOne
+    @Getter @Setter 
     private Parametros tipoOficina;
     
     @Column(name = "HOR_ATENCION")
@@ -88,10 +100,51 @@ public class Oficina implements Serializable{
     @Getter @Setter
     private Date fecNacEncargado;
     
-    @Column(name="PREVENTA_OFICINA_ACTIVO")
+    @Column(name="PREVENTA_OFICINA_ACTIVO")    
     private Character preventaOficinaActivo;   
 	
+    @Basic(optional = false)
+    @NotNull
+    @Column(name = "ESTADO")
+    @Getter @Setter 
+    private Character estado;
 	
+	public Oficina() {
+	}
+
+
+
+
+
+
+	public Oficina(@NotNull BigDecimal id, @NotNull String nombre, String codigo, String descripcion,
+			Date createDatetime, Date modifyDatetime, Usuario createUser, Usuario modifyUser, Subsede idSubsede,
+			Persona idPersona, Parametros tipoOficina, String horAtencion, String radiosRpm, String nomEncargado,
+			String docEncargado, Date fecNacEncargado, Character preventaOficinaActivo) {
+		this.id = id;
+		this.nombre = nombre;
+		this.codigo = codigo;
+		this.descripcion = descripcion;
+		this.createDatetime = createDatetime;
+		this.modifyDatetime = modifyDatetime;
+		this.createUser = createUser;
+		this.modifyUser = modifyUser;
+		this.idSubsede = idSubsede;
+		this.idPersona = idPersona;
+		this.tipoOficina = tipoOficina;
+		this.horAtencion = horAtencion;
+		this.radiosRpm = radiosRpm;
+		this.nomEncargado = nomEncargado;
+		this.docEncargado = docEncargado;
+		this.fecNacEncargado = fecNacEncargado;
+		this.preventaOficinaActivo = preventaOficinaActivo;
+	}
+
+
+
+
+
+
 	/**
 	 * 
 	 */

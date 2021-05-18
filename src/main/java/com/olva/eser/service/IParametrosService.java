@@ -3,6 +3,7 @@
  */
 package com.olva.eser.service;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.olva.eser.entity.Parametros;
@@ -13,6 +14,8 @@ import com.olva.eser.entity.Parametros;
  * Version 1.0
  */
 public interface IParametrosService {
+	
+	public Parametros findbyId(BigDecimal id);
 	
 	public Parametros buscaXGrupoYCodigo(BigInteger grupo, BigInteger codigo);
 

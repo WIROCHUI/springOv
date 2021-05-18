@@ -102,17 +102,6 @@ public class ComprobantePagoServiceImpl implements IComprobantePagoService{
 			comprobante.setNroComprobante(Integer.parseInt(dividirComprobante[1].trim()));
 			comprobante.setIdEmisorComp(new Persona(sesionUsuario.getDatGenEmpleado().getIdEmisor()));
 
-			double valorVentaComp = 0;
-			double valorIgvComp = 0;
-			double precioVentaComp = 0;
-
-			comprobante.setEfectivo(new BigDecimal(precioVentaComp));
-			comprobante.setPrecioVenta(new BigDecimal(precioVentaComp));
-			comprobante.setValorIgv(new BigDecimal(valorIgvComp));
-			comprobante.setValorVenta(new BigDecimal(valorVentaComp));
-			comprobante.setBaseImponible(comprobante.getValorVenta());
-//	    validarConstraintBeanLocal.validar(comprobante);
-
 			return comprobantePagoDao.save(comprobante);
 		} catch (Exception e) {
 			log.error(e.getMessage());

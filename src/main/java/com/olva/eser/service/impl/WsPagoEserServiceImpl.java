@@ -56,7 +56,6 @@ public class WsPagoEserServiceImpl implements IWsPagoEserService{
         } catch (NoResultException e) {
             return null;
         } catch (Exception e) {
-            LOG.error("Mensaje: " + e.getMessage());
             return null;
         }
 	}

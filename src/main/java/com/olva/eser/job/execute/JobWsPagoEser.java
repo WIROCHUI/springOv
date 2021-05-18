@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import com.olva.eser.dto.LiquidacionClienteDto;
 import com.olva.eser.dto.PersonaJuridicaAreaDto;
+import com.olva.eser.emun.EstadoComprobantePagoEnum;
 import com.olva.eser.emun.EstadoItemResumenComprobanteEnum;
 import com.olva.eser.emun.GrupoParametrosEnum;
 import com.olva.eser.emun.TipoComprobanteEnum;
@@ -27,7 +28,6 @@ import com.olva.eser.entity.Igv;
 import com.olva.eser.entity.Oficina;
 import com.olva.eser.entity.Parametros;
 import com.olva.eser.entity.Sede;
-import com.olva.eser.entity.Usuario;
 import com.olva.eser.entity.WsPagoEser;
 import com.olva.eser.job.service.BillingService;
 import com.olva.eser.security.DatosGeneralEmpleado;
@@ -56,6 +56,7 @@ public class JobWsPagoEser implements Job{
     public static final long EXECUTION_TIME = 5000L;
     public static final String MSJ_ERROR = "No existe una preventa sin pago asociada al CIP ";
     public static final String COD_ERROR = "2";
+    public static final String COD_OK = "1";
     
     @Autowired
     private BillingService bs;
@@ -95,6 +96,7 @@ public class JobWsPagoEser implements Job{
     private Sede sedeEmpleado;
     private Parametros idMoneda;
 	private Parametros estadoComprobante;
+	@SuppressWarnings("unused")
 	private Parametros estadoEnvioContadoFacturado;   
 	private Parametros idTipoComprobante;
     private Parametros idTipoComprobanteFE;
@@ -102,8 +104,10 @@ public class JobWsPagoEser implements Job{
     private Parametros getOficinaTipoPrincipal;
     private Parametros getTipoServicioCourierNacional;
     private Parametros getTipoMoneda;
+    private Parametros getFormaPago;
     private Igv igv;
-    private ComprobantePagoNumeracion comprobantePagoNumeracion;
+    @SuppressWarnings("unused")
+	private ComprobantePagoNumeracion comprobantePagoNumeracion;
     private Oficina oficina;
     
     private BigInteger codTipoComprobante = BigInteger.ZERO;
@@ -115,51 +119,46 @@ public class JobWsPagoEser implements Job{
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
     	bs.callBillingProcess();  
-    	int index = 0;  	
-    	
-    	
+    	int index = 0;  	 	
     	
     	try {
-    		listaWsPagoEser = eserService.findByEstadoPendiente();    			
+    		listaWsPagoEser = eserService.findByEstadoPendiente(); 
+    		
+    		if (listaWsPagoEser.size() == 0) {
+    			log.warn("NO HAY DOCUMENTOS PENDIENTES");
+				return;
+			}
+    		
 			while (listaWsPagoEser.size() > index) {
-
-				wsPagoEser = listaWsPagoEser.get(index);
-				if (wsPagoEser == null) {
-					System.out.println("SIN PENDIENTES");
-					return;
-				}
-
-				liquidacionClienteDto = eserService.findByIdLiquidacion(new BigDecimal(wsPagoEser.getTransactionCode()));
-
-				if (liquidacionClienteDto == null) {
-					actualizarPagoEser(wsPagoEser);
-				} else if (liquidacionClienteDto != null) {
-					System.out.println("GENERAR COMPROBANTE!!");
-					generarComprobantePago();
-				}
+				wsPagoEser = listaWsPagoEser.get(index);			
+				
+				if(wsPagoEser.getTransactionCode().isEmpty() || isNumeric(wsPagoEser.getTransactionCode())) {
+					liquidacionClienteDto = eserService.findByIdLiquidacion(new BigDecimal(wsPagoEser.getTransactionCode()));
+					 if (liquidacionClienteDto != null) {
+							generarComprobantePago();
+						}else if (liquidacionClienteDto == null) {
+							wsPagoEser.setMsjError(MSJ_ERROR + wsPagoEser.getCip());
+							wsPagoEser.setEstado(COD_ERROR);
+							actualizarPagoEser(wsPagoEser);
+							log.warn("NO EXISTE LIQUDACION");
+						}
+				}else {
+					if (liquidacionClienteDto == null) {
+						wsPagoEser.setMsjError(MSJ_ERROR + wsPagoEser.getCip());
+						wsPagoEser.setEstado(COD_ERROR);
+						actualizarPagoEser(wsPagoEser);
+						log.warn("ERROR EN ID LIQUDACION");
+					}
+				}				
 
 				index++;
-			}
-    			
-    			
+			}    						
 		} catch (Exception e) {
 			log.error(e.getMessage());
 		}  		
     }
     
-    
 
-	private void actualizarPagoEser(WsPagoEser wsPagoEser){
-		try {
-	    	System.out.println("ACTUALIZAR");
-			updateWsPagoEser = wsPagoEser;
-			updateWsPagoEser.setMsjError(MSJ_ERROR + wsPagoEser.getTransactionCode());
-			updateWsPagoEser.setEstado(COD_ERROR);
-			eserService.actualizar(updateWsPagoEser);
-		} catch (Exception e) {
-			log.error(e.getMessage());
-		}
-    }
 	
 	private void generarComprobantePago() {
 		Date fecha = new Date();
@@ -174,11 +173,9 @@ public class JobWsPagoEser implements Job{
 				log.warn(Constante.NO_SE_CONFIRMO_EL_TIPO_DOC_VACIO);
 			} else if (null == getTipoMoneda) {
 				log.warn(Constante.NO_SE_CONFIRMO_MONEDA_VACIO);
-			}
-//		else if(null == comprobanteAdapter.getIdFormaPago()) {
-//			mensajeRespuesta = Constante.NO_SE_CONFIRMO_FORMA_PAGO_VACIO;
-//		}
-			else if (null != sesionUsuario) {
+			} else if (null == getFormaPago) {
+				log.warn(Constante.NO_SE_CONFIRMO_FORMA_PAGO_VACIO);
+			} else if (null != sesionUsuario) {
 				datosGeneralEmpleado = sesionUsuario.getDatGenEmpleado();
 				sedeEmpleado = sedeService.findByIdSede(datosGeneralEmpleado.getIdSede());
 
@@ -205,7 +202,7 @@ public class JobWsPagoEser implements Job{
 						}
 						comprobantePagoNumeracion = comprobantePagoNumeracionService.findByOficinaSerie(oficina.getId(),
 								Constante.PREFIJO_COMP_TIPO_FACTURA + sedeEmpleado.getSerieFacturacionMovil());
-//						cargarValoresIniciales(sedeEmpleado,getTipoMoneda);
+						cargarValoresIniciales(sedeEmpleado, getTipoMoneda.getId());
 						cargarParametros();
 						comprobantePagoGenerico = loadComprobantePagoGenerico(datosGeneralEmpleado.getIdUsuario(),
 								sedeEmpleado.getSerieFacturacionMovil());
@@ -216,6 +213,12 @@ public class JobWsPagoEser implements Job{
 								documentoIdentidad.getIdPersona().getIdPersona(), Constante.ID_SEDE_LIMA);
 						datosGeneralEmpleado = sesionUsuario.getDatGenEmpleado();
 						ComprobantePago comprobante = new ComprobantePago();
+
+						BigDecimal valorVentaComp = new BigDecimal(
+								liquidacionClienteDto.getTotal().doubleValue() / 1.18);
+						BigDecimal valorIgvComp = new BigDecimal(
+								liquidacionClienteDto.getTotal().doubleValue() - valorVentaComp.doubleValue());
+
 						comprobante.setSerieComprobante(comprobantePagoGenerico.getSerieComprobante());
 						comprobante.setFechaEmision(fecha);
 						comprobante.setCreateUser(comprobantePagoGenerico.getCreateUser());
@@ -234,11 +237,20 @@ public class JobWsPagoEser implements Job{
 						comprobante.setIdOficina(oficina);
 						comprobante.setEstResCom(estadoResumenComp);
 						comprobante.setIdTipoServicio(getTipoServicioCourierNacional);
-//						comprobante.setIdFormaPago(new Parametros(comprobanteAdapter.getIdFormaPago()));
+						comprobante.setIdFormaPago(new Parametros(getFormaPago.getId()));
 						comprobante.setIgv(igv.getPorcentajeIgv());
 						comprobante.setFlgDivEmi(Constante.FLG_DIVERSA_EMISION);
 						comprobante.setEstadoFacE(idEstadoComprobanteFe);
-						comprobantePagoService.insertaComprobantePago(comprobante, sesionUsuario);						
+						comprobante.setEfectivo(liquidacionClienteDto.getTotal());
+						comprobante.setPrecioVenta(liquidacionClienteDto.getTotal());
+						comprobante.setValorIgv(valorIgvComp);
+						comprobante.setValorVenta(valorVentaComp);
+						comprobante.setBaseImponible(comprobante.getValorVenta());
+						comprobantePagoService.insertaComprobantePago(comprobante, sesionUsuario);
+
+						wsPagoEser.setEstado(COD_OK);
+						System.out.println("OK - COMPROBANTE GENERADO");
+						actualizarPagoEser(wsPagoEser);
 					}
 				}
 
@@ -273,8 +285,32 @@ public class JobWsPagoEser implements Job{
 		getTipoServicioCourierNacional = parametrosService.buscaXGrupoYCodigo(
 				GrupoParametrosEnum.TIPO_FACTURACION.getValue(), Constante.COURIER_NACIONAL);
 		getTipoMoneda = parametrosService.buscaXGrupoYCodigo(Constante.GRUPO_MONEDA,Constante.CODIGO_DOLAR);
+		getFormaPago = parametrosService.buscaXGrupoYCodigo(Constante.CODIGO_FORMA_PAGO,Constante.TIPO_FORMA_MERCADO_PAGO);
 	}
 	
+	private void cargarValoresIniciales(Sede sedeOrigen, BigDecimal idMoneda) {
+		this.idMoneda = parametrosService.findbyId(idMoneda);
+		this.estadoComprobante = parametrosService.buscaXGrupoYCodigo(GrupoParametrosEnum.ESTADO_COMPROBANTE.getValue(),
+                        EstadoComprobantePagoEnum.EMITIDO_PENDIENTE.getValue());
+		this.estadoEnvioContadoFacturado = parametrosService.findbyId(Constante.ID_ESTADO_ENVIO_CONTADO_FACTURADO);     
+	}
+	
+	private static boolean isNumeric(String cadena){
+		try {
+			Integer.parseInt(cadena);
+			return true;
+		} catch (NumberFormatException nfe) {
+			return false;
+		}
+    }
+
+	private void actualizarPagoEser(WsPagoEser wsPagoEser){
+		try {		
+			eserService.actualizar(wsPagoEser);
+		} catch (Exception e) {
+			log.error(e.getMessage());
+		}
+    }
 	
 	
     

@@ -167,12 +167,12 @@ public class ComprobantePago implements Serializable {
 		this.id = id;
 	}
 
-	public ComprobantePago(Long id, Integer idEstResCom) {
+	public ComprobantePago(Long id, BigDecimal idEstResCom) {
 		this.id = id;
 		this.estResCom = new Parametros(idEstResCom); 
 	}
 
-	public ComprobantePago(Long id, Integer idTipoComprobante, String serieComprobante, Integer nroComprobante, Date fechaEmision) {
+	public ComprobantePago(Long id, BigDecimal idTipoComprobante, String serieComprobante, Integer nroComprobante, Date fechaEmision) {
 		super();
 		this.id = id;
 		this.idTipoComprobante = new Parametros(idTipoComprobante);
@@ -200,7 +200,7 @@ public class ComprobantePago implements Serializable {
         this.observacion = observacion;
     }
 
-	public ComprobantePago(Long id, String serieComprobante, Integer nroComprobante, Character flgDivEmi, String motivoNota, Integer idTipoComprobante, BigDecimal idPersona) {
+	public ComprobantePago(Long id, String serieComprobante, Integer nroComprobante, Character flgDivEmi, String motivoNota, BigDecimal idTipoComprobante, BigDecimal idPersona) {
         this.id = id;
         this.serieComprobante = serieComprobante;
         this.nroComprobante = nroComprobante;
@@ -237,8 +237,8 @@ public class ComprobantePago implements Serializable {
 
 	public ComprobantePago(Long id, String serieComprobante, Integer nroComprobante, Date fechaEmision,
 			BigDecimal igv, BigDecimal valorIgv, BigDecimal valorVenta, BigDecimal precioVenta, String motivoNota, 
-			Character flgDivEmi, String glosaDivEmi, Date fechaVencimiento, Integer idFormaPago, Integer idTipoComprobante, 
-			String valor2TipoComprobante, Integer idEstado, Integer idMoneda, String valorTipoAfectacionIgv, String valorTipoMotivo, 
+			Character flgDivEmi, String glosaDivEmi, Date fechaVencimiento, BigDecimal idFormaPago, BigDecimal idTipoComprobante, 
+			String valor2TipoComprobante, BigDecimal idEstado, BigDecimal idMoneda, String valorTipoAfectacionIgv, String valorTipoMotivo, 
 			String valorTipoDocumentoCliente, String numeroDocumentoCliente, String concatNombre) {
 		this.id = id;
 		this.serieComprobante = serieComprobante;

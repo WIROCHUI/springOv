@@ -58,7 +58,6 @@ public class OficinaServiceImpl implements IOficinaService{
             query.setParameter(1, tipoOficina);
             query.setParameter(2, sede);
             Object[] result = (Object[]) query.getSingleResult();
-            BigDecimal  tipo = (BigDecimal)result[7];
             oficina.setId((BigDecimal) result[0]);
             oficina.setIdPersona(new Persona((BigDecimal) result[1]));
             oficina.setNombre((String) result[2]);
@@ -66,7 +65,7 @@ public class OficinaServiceImpl implements IOficinaService{
             oficina.setDescripcion((String) result[4]);
             oficina.setEstado((char) result[5]);
             oficina.setCreateDatetime((Date) result[6]);
-            oficina.setTipoOficina( new Parametros(tipo.intValue()));
+            oficina.setTipoOficina(new Parametros((BigDecimal) result[7]));
             oficina.setNomEncargado((String) result[8]);
             oficina.setDocEncargado((String) result[9]);
             return oficina;

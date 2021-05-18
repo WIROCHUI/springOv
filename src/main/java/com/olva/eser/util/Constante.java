@@ -22,9 +22,13 @@ public class Constante {
 	public static final String PREFIJO_COMP_TIPO_FACTURA = "F";
 	public static final BigInteger GRUPO_MONEDA = new BigInteger("7");
 	public static final BigInteger CODIGO_DOLAR = new BigInteger("2");
+	public static final BigInteger CODIGO_FORMA_PAGO = new BigInteger("87");
 	public static final String SEPARADOR_GUION = "\\-";
 	public static final String GUION = " - ";
 	public static final String COD_ERR_COMPROBANTE = "0";
+	public static final BigInteger TIPO_FORMA_PAGO_EFECTIVO = new BigInteger("6");
+	public static final BigInteger TIPO_FORMA_MERCADO_PAGO = new BigInteger("4");
+	public static final BigDecimal ID_ESTADO_ENVIO_CONTADO_FACTURADO = BigDecimal.valueOf(83);
 	
 	public static final BigInteger OFICINA_PRINCIPAL = new BigInteger("1");
 	public static final BigInteger COURIER_NACIONAL = new BigInteger("1");

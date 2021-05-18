@@ -3,6 +3,7 @@
  */
 package com.olva.eser.service.impl;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import javax.persistence.EntityManager;
@@ -38,6 +39,17 @@ public class ParametrosServiceImpl implements IParametrosService{
 			log.error(e.getMessage(), e);
 			return null;
 		}
+	}
+
+	@Override
+	public Parametros findbyId(BigDecimal id) {
+		try {
+			return (Parametros) em.createNamedQuery("Parametros.findById")
+				.setParameter("id", id)
+				.getSingleResult();
+		    } catch (NoResultException e) {
+			return new Parametros();
+		    }
 	}
 
 }

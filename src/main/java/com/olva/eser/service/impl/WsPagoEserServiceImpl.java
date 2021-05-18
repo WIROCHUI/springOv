@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.olva.eser.dao.IWsPagoEserDao;
 import com.olva.eser.dto.LiquidacionClienteDto;
+import com.olva.eser.dto.PersonaJuridicaAreaDto;
 import com.olva.eser.entity.WsPagoEser;
 import com.olva.eser.service.IWsPagoEserService;
 
@@ -44,6 +45,7 @@ public class WsPagoEserServiceImpl implements IWsPagoEserService{
 	
 	
 	@Override
+	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
 	public List<WsPagoEser> findByEstadoPendiente() {
 		String estadoPendiente = "0";
@@ -54,7 +56,6 @@ public class WsPagoEserServiceImpl implements IWsPagoEserService{
         } catch (NoResultException e) {
             return null;
         } catch (Exception e) {
-            LOG.error("Mensaje: " + e.getMessage());
             return null;
         }
 	}
@@ -69,7 +70,7 @@ public class WsPagoEserServiceImpl implements IWsPagoEserService{
 
 
 	@Override
-	@Transactional
+	@Transactional(readOnly = true)
 	public LiquidacionClienteDto findByIdLiquidacion(BigDecimal idLiquidacion) {
 		LiquidacionClienteDto liquidacionClienteDto = new LiquidacionClienteDto();
 		StringBuilder sql = new StringBuilder();
@@ -77,7 +78,7 @@ public class WsPagoEserServiceImpl implements IWsPagoEserService{
 			
 			sql.append("SELECT ID_LIQUIDACION, DIRECCIONES, ");
 			sql.append("TOTAL, PESO_TOTAL, SERIE_FACTURA, NUMERO_FACTURA, ");
-			sql.append("COD_CLIENTE_RUC_DNI, CIP ");
+			sql.append("COD_CLIENTE_RUC_DNI, CIP,TIPO_DOCUMENTO_CLIENTE ");
 			sql.append("FROM OLVADESA.LIQUIDACION_CLIENTE ");
 			sql.append("WHERE ID_LIQUIDACION = ?1 ");
 			
@@ -94,12 +95,38 @@ public class WsPagoEserServiceImpl implements IWsPagoEserService{
             liquidacionClienteDto.setNumeroFactura((String) result[5]);
             liquidacionClienteDto.setCodClienteDniRuc((String) result[6]);
             liquidacionClienteDto.setCip((String) result[7]);
-
+            liquidacionClienteDto.setTipoDocumentocliente(String.valueOf((char) result[8]));
             return liquidacionClienteDto;
 		} catch (Exception e) {
 			return null;
 		}	
 
+	}
+
+
+
+	@Override
+	@Transactional(readOnly = true)
+	public PersonaJuridicaAreaDto findByCodigoUno(BigDecimal idPersona, BigDecimal idSede) {
+		StringBuilder sql = new StringBuilder();
+		PersonaJuridicaAreaDto perJurArea = new PersonaJuridicaAreaDto();
+		try {
+			sql.append("SELECT ID, ID_PERSONA, CODIGO ");
+			sql.append("FROM PERSONA_JURIDICA_AREAS ");
+			sql.append("WHERE ID_PERSONA = ?1 AND CODIGO = '1' AND ID_SEDE = ?2  ");
+			em.createNativeQuery(sql.toString());
+			Query query = em.createNativeQuery(sql.toString());
+            query.setParameter(1, idPersona);
+            query.setParameter(2, idSede);
+            Object[] result = (Object[]) query.getSingleResult();
+            perJurArea.setId((BigDecimal) result[0]);
+            perJurArea.setIdPersona((BigDecimal) result[1]);
+            perJurArea.setCodigo(String.valueOf((char) result[2]));
+            return perJurArea;
+		} catch (Exception e) {
+			return null;
+		}
+		
 	}
 	
 	

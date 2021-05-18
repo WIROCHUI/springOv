@@ -1,6 +1,8 @@
 package com.olva.eser.entity;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Date;
 
 import javax.persistence.Basic;
@@ -30,7 +32,8 @@ import lombok.Setter;
 @Entity
 @Table(name = "PARAMETROS")
 @NamedQueries({
-    @NamedQuery(name = "Parametros.findByGrupoAndCodigo", query = "SELECT new com.olva.eser.entity.Parametros(p.id) FROM Parametros p WHERE p.grupo = :grupo AND p.codigo = :codigo")
+	@NamedQuery(name = "Parametros.findById", query = "SELECT p FROM Parametros p WHERE p.id = :id"),
+	@NamedQuery(name = "Parametros.buscaXGrupoYCodigo", query = "SELECT p FROM Parametros p where p.grupo = ?1 and p.codigo = ?2"),
 })  
 public class Parametros implements Serializable {
     
@@ -41,11 +44,11 @@ public class Parametros implements Serializable {
     @Basic(optional = false)
     @NotNull
     @Column(name = "ID")
-    @Getter @Setter private Integer id;
+    @Getter @Setter private BigDecimal id;
     @Column(name = "GRUPO")
-    @Getter @Setter private Integer grupo;
+    @Getter @Setter private BigInteger grupo;
     @Column(name = "CODIGO")
-    @Getter @Setter private Integer codigo;
+    @Getter @Setter private BigInteger codigo;
     @Column(name = "DESCRIPCION")
     @Getter @Setter private String descripcion;
     @Basic(optional = false)
@@ -75,14 +78,14 @@ public class Parametros implements Serializable {
     public Parametros() {
     }
 
-    public Parametros(Integer id) {
-        this.id = id;
-    }
+
     
-    public Parametros(Integer id, String valor) {
+    public Parametros(BigDecimal id, String valor) {
         this.id = id;
         this.valor = valor;
     }
+    
+    
 
     @Override
     public int hashCode() {
@@ -107,4 +110,32 @@ public class Parametros implements Serializable {
     public String toString() {
         return "com.olva.job.entity.Parametros[ id=" + id + " ]";
     }
+
+
+
+	public Parametros(@NotNull BigDecimal id) {
+		super();
+		this.id = id;
+	}
+
+
+
+	public Parametros(@NotNull BigDecimal id, BigInteger grupo, BigInteger codigo, String descripcion, Character estado,
+			String valor, String valor2, String pc, Date createTime, Date modifyDate, Usuario createUser,
+			Usuario modifyUser, String tipo) {
+		super();
+		this.id = id;
+		this.grupo = grupo;
+		this.codigo = codigo;
+		this.descripcion = descripcion;
+		this.estado = estado;
+		this.valor = valor;
+		this.valor2 = valor2;
+		this.pc = pc;
+		this.createTime = createTime;
+		this.modifyDate = modifyDate;
+		this.createUser = createUser;
+		this.modifyUser = modifyUser;
+		this.tipo = tipo;
+	}
 }

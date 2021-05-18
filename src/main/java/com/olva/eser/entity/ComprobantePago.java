@@ -20,6 +20,9 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
+import javax.persistence.QueryHint;
+
+import com.olva.eser.util.Constante;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -31,11 +34,9 @@ import lombok.Setter;
 @Entity
 @Table(name = "COMPROBANTE_PAGO")
 @NamedQueries({
-	@NamedQuery(name = "ComprobantePago.findForSendToBizlinkByFechaEmision", query = "SELECT new com.olva.eser.entity.ComprobantePago(c.id, c.idTipoComprobante.id, c.serieComprobante, c.nroComprobante, c.fechaEmision) FROM ComprobantePago c where c.idEmisorComp = ?1 and c.estadoFacE not in (931, 932, 1069) and c.serieComprobante like 'F%' and c.fechaEmision > ?2 order by c.id"),
-    @NamedQuery(name = "ComprobantePago.findByIdEmisorCompTipoSerieNumeroComprobante", query = "SELECT new com.olva.eser.entity.ComprobantePago(c.id, c.estResCom.id) FROM ComprobantePago c WHERE c.idEmisorComp = :idEmisorComp AND c.idTipoComprobante = :idTipoComprobante AND c.serieComprobante = :serieComprobante and c.nroComprobante = :nroComprobante"),
-    @NamedQuery(name = "ComprobantePago.findForGenerateXmlByFechaEmision", query = "SELECT new com.olva.eser.entity.ComprobantePago(c.id, c.serieComprobante, c.nroComprobante, c.fechaEmision, c.igv, c.valorIgv, c.valorVenta, c.precioVenta, c.motivoNota, c.flgDivEmi, c.glosaDivEmi, c.fechaVencimiento, c.idFormaPago.id, tc.id, tc.valor2, c.estado.id, c.idMoneda.id, ta.valor, tn.valor, td.valor, d.numeroDocumento, p.concatNombre) FROM ComprobantePago c INNER JOIN c.idTipoComprobante tc INNER JOIN c.idTipoAfectacionIgv ta LEFT JOIN c.idTipoNota tn INNER JOIN c.idDocCliente d INNER JOIN d.idTipDocumento td INNER JOIN d.idPersona p WHERE c.idEmisorComp = ?1 and c.fechaEmision > ?2 AND c.estadoFacE.id = ?3 order by c.id")
+	@NamedQuery(name = "ComprobantePago.validateExistComprobante", 
+		    query = "SELECT COUNT(1) FROM ComprobantePago c WHERE c.idEmisorComp = :idEmisorComp AND c.idTipoComprobante = :tipoComprobante AND c.serieComprobante = :serie AND c.nroComprobante = :nroComprobante")
 })
-
 public class ComprobantePago implements Serializable {
 
 	private static final long serialVersionUID = -2110474483883811580L;
@@ -77,8 +78,9 @@ public class ComprobantePago implements Serializable {
     @Getter @Setter private Character collect;
     @Column(name = "OBSERVACION")    
     @Getter @Setter private String observacion;
-    @Column(name = "ID_OFICINA")    
-    @Getter @Setter private BigDecimal idOficina;
+    @JoinColumn(name = "ID_OFICINA", referencedColumnName = "ID")
+    @ManyToOne
+    @Getter @Setter private Oficina idOficina;
     @Column(name = "CREATE_DATETIME")
     @Temporal(TemporalType.TIMESTAMP)
     @Getter @Setter private Date createDatetime;
@@ -100,6 +102,9 @@ public class ComprobantePago implements Serializable {
     @Getter @Setter private String glosaDivEmi;
     @Column(name = "MOTIVO_NOTA")
     @Getter @Setter private String motivoNota;
+    @JoinColumn(name = "ID_TIPO_COMPROBANTE_FE", referencedColumnName = "ID")
+    @ManyToOne
+    @Getter @Setter private Parametros idTipoComprobanteFE;
     @Column(name = "DIGEST_VALUE")
     @Getter @Setter private String digestValue;
     @Column(name = "MAIL_SENT")
@@ -126,6 +131,9 @@ public class ComprobantePago implements Serializable {
     @JoinColumn(name = "ESTADO", referencedColumnName = "ID")
     @ManyToOne
     @Getter @Setter private Parametros estado;
+    @JoinColumn(name = "ID_TIPO_SERVICIO", referencedColumnName = "ID")
+    @ManyToOne
+    @Getter @Setter private Parametros idTipoServicio;
     @JoinColumn(name = "EST_RES_COM", referencedColumnName = "ID")
     @ManyToOne
     @Getter @Setter private Parametros estResCom;
@@ -159,12 +167,12 @@ public class ComprobantePago implements Serializable {
 		this.id = id;
 	}
 
-	public ComprobantePago(Long id, Integer idEstResCom) {
+	public ComprobantePago(Long id, BigDecimal idEstResCom) {
 		this.id = id;
 		this.estResCom = new Parametros(idEstResCom); 
 	}
 
-	public ComprobantePago(Long id, Integer idTipoComprobante, String serieComprobante, Integer nroComprobante, Date fechaEmision) {
+	public ComprobantePago(Long id, BigDecimal idTipoComprobante, String serieComprobante, Integer nroComprobante, Date fechaEmision) {
 		super();
 		this.id = id;
 		this.idTipoComprobante = new Parametros(idTipoComprobante);
@@ -192,7 +200,7 @@ public class ComprobantePago implements Serializable {
         this.observacion = observacion;
     }
 
-	public ComprobantePago(Long id, String serieComprobante, Integer nroComprobante, Character flgDivEmi, String motivoNota, Integer idTipoComprobante, Integer idPersona) {
+	public ComprobantePago(Long id, String serieComprobante, Integer nroComprobante, Character flgDivEmi, String motivoNota, BigDecimal idTipoComprobante, BigDecimal idPersona) {
         this.id = id;
         this.serieComprobante = serieComprobante;
         this.nroComprobante = nroComprobante;
@@ -229,8 +237,8 @@ public class ComprobantePago implements Serializable {
 
 	public ComprobantePago(Long id, String serieComprobante, Integer nroComprobante, Date fechaEmision,
 			BigDecimal igv, BigDecimal valorIgv, BigDecimal valorVenta, BigDecimal precioVenta, String motivoNota, 
-			Character flgDivEmi, String glosaDivEmi, Date fechaVencimiento, Integer idFormaPago, Integer idTipoComprobante, 
-			String valor2TipoComprobante, Integer idEstado, Integer idMoneda, String valorTipoAfectacionIgv, String valorTipoMotivo, 
+			Character flgDivEmi, String glosaDivEmi, Date fechaVencimiento, BigDecimal idFormaPago, BigDecimal idTipoComprobante, 
+			String valor2TipoComprobante, BigDecimal idEstado, BigDecimal idMoneda, String valorTipoAfectacionIgv, String valorTipoMotivo, 
 			String valorTipoDocumentoCliente, String numeroDocumentoCliente, String concatNombre) {
 		this.id = id;
 		this.serieComprobante = serieComprobante;
@@ -259,10 +267,39 @@ public class ComprobantePago implements Serializable {
 		this.idDocCliente.setIdTipDocumento(new Parametros(null, valorTipoDocumentoCliente));
 		this.idDocCliente.setNumeroDocumento(numeroDocumentoCliente);
 		this.idDocCliente.setIdPersona(new Persona(null, concatNombre));
-	}
-
+	}	
 	
-    @Override
+    public ComprobantePago(Long id, BigDecimal createUser, Parametros idTipoComprobante, String serieComprobante,
+		Date fechaEmision, Character flgFacturaElectronica, BigDecimal igv, Character collect, Oficina idOficina,
+		Date createDatetime, Date createTime, String pc, BigDecimal efectivo, BigDecimal idPersJurArea,
+		Character flgDivEmi, Parametros idTipoComprobanteFE, Parametros idMoneda, Parametros estadoFacE,
+		Parametros estado, Parametros idTipoServicio, Parametros estResCom, DocumentoIdentidad idDocCliente) {
+	super();
+	this.id = id;
+	this.createUser = createUser;
+	this.idTipoComprobante = idTipoComprobante;
+	this.serieComprobante = serieComprobante;
+	this.fechaEmision = fechaEmision;
+	this.flgFacturaElectronica = flgFacturaElectronica;
+	this.igv = igv;
+	this.collect = collect;
+	this.idOficina = idOficina;
+	this.createDatetime = createDatetime;
+	this.createTime = createTime;
+	this.pc = pc;
+	this.efectivo = efectivo;
+	this.idPersJurArea = idPersJurArea;
+	this.flgDivEmi = flgDivEmi;
+	this.idTipoComprobanteFE = idTipoComprobanteFE;
+	this.idMoneda = idMoneda;
+	this.estadoFacE = estadoFacE;
+	this.estado = estado;
+	this.idTipoServicio = idTipoServicio;
+	this.estResCom = estResCom;
+	this.idDocCliente = idDocCliente;
+}
+
+	@Override
     public int hashCode() {
         int hash = 0;
         hash += (id != null ? id.hashCode() : 0);
